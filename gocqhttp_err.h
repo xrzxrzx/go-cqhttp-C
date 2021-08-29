@@ -10,19 +10,24 @@ typedef enum
 	AcceptFailed,			//接受连接失败
 	ConnectionError,		//连接错误
 	NetworkIOError,			//网络IO错误
-	NULLError				//空指针异常
+	NULLError,				//空指针异常
+	StringError				//字符串操作失败
 }cqhttp_err_list;	//错误类型
 
 typedef struct
 {
 	cqhttp_err_list error;	//错误类型
-	char function[20];		//错误函数
+	char function[50];		//错误函数
+	int flag;				//是否拥有附加说明
+	char instructions[100];	//附加说明
 } cqhttp_err;		//错误封装
 
 //设置cqhttp_err
 cqhttp_err set_cqhttp_err(
 	cqhttp_err_list list,	//错误类型
-	char function[20]		//错误函数
+	char function[70],		//错误函数
+	int flag,				//是否拥有附加说明
+	char instructions[100]	//附加说明
 );
 
 //输出错误

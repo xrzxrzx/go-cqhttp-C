@@ -1,14 +1,17 @@
 #include"gocqhttp_err.h"
 #include<string.h>
+#include<stdio.h>
 
 /*…Ë÷√cqhttp_err*/
-cqhttp_err set_cqhttp_err(cqhttp_err_list list, char function[20])
+cqhttp_err set_cqhttp_err(cqhttp_err_list list, char function[70], int flag, char instructions[100])
 {
 	cqhttp_err err;
-
+	memset(&err, 0, sizeof(err));
 	err.error = list;
-	strcpy_s(err.function, sizeof(err.function), function);
-	
+	strcpy(err.function, function);
+	err.flag = flag;
+	if (err.flag)
+		strcpy(err.instructions, instructions);
 	return err;
 }
 
@@ -44,7 +47,13 @@ cqhttp_err_list cqhttp_err_out(cqhttp_err err)
 		case NULLError:
 			printf("[WARNING]Memory request failed ");
 			break;
+		case StringError:
+			printf("[ERROR]String operation error ");
+			break;
 	}
-	printf("| function: \"%s\"\n", err.function);
+	printf("| function: \"%s\" ", err.function);
+	if (err.flag)
+		printf("instructions: %s", err.instructions);
+	printf("\n");
 	return err.error;
 }
