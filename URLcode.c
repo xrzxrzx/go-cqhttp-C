@@ -139,3 +139,19 @@ char* UTF8toGBK(char* strUtf8)
     strUtf8 = NULL;
     return strTemp;
 }
+
+/*快捷编码*/
+char* encode(char* str)
+{
+    char* string;
+    string = urlencode(GBKtoUTF8(str));
+    return string;
+}
+
+/*快捷解码*/
+char* decode(char* str)
+{
+    char* string;
+    string = UTF8toGBK(str);
+    return string;
+}

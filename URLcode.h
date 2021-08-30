@@ -19,3 +19,9 @@ char* GBKtoUTF8(char* strGbk);
 
 /*UTF-8转GBK*/
 char* UTF8toGBK(char* strUtf8);
+
+/*快捷编码*/
+char* encode(char* str);
+
+/*快捷解码*/
+char* decode(char* str);
