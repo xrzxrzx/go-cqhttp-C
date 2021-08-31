@@ -69,7 +69,7 @@ void event_switch(void* data)
 				//code（未完成，请谨慎编写）
 				break;
 			case meta_event:		//心跳事件
-				cqhttp_err_out(set_cqhttp_err(None, func, 1, "recv unknow_message"));
+				cqhttp_err_out(set_cqhttp_err(None, func, 1, "recv meta_message"));
 				//code
 				break;
 			case unknow_event:		//未知事件
