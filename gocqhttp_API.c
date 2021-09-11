@@ -76,12 +76,10 @@ cqhttp_err send_group_msg(send_group_msg_data* data)
 {
 	char func[70] = "send_group_msg";
 
-	char rmsg[500] = { '\0' };							//收包
+	char rmsg[1024] = { '\0' };							//收包
 	const int len = strlen(data->send_msg.message) + 1;	//消息长度
-	char* smsg = (char*)malloc(len + len_max);			//发包
-	if (!smsg)
-		return set_cqhttp_err(NULLError, func, 1, "发包内存申请失败");
-	memset(smsg, 0, len + len_max);
+	char smsg[1024] = { '\0' };			//发包
+	memset(smsg, 0, 1024);
 
 	//构建发包
 	sprintf(smsg, API_SEND_GROUP_MSG_FORM,
@@ -100,7 +98,6 @@ cqhttp_err send_group_msg(send_group_msg_data* data)
 		data->recv_msg.status) == -1)
 		cqhttp_err_out(set_cqhttp_err(StringError, func, 1, "sscanf"));
 
-	free(smsg);
 	return set_cqhttp_err(None, func, 0, NULL);
 }
 

@@ -3,7 +3,7 @@
 #include<stdio.h>
 
 /*…Ë÷√cqhttp_err*/
-cqhttp_err set_cqhttp_err(cqhttp_err_list list, char function[70], int flag, char instructions[100])
+cqhttp_err set_cqhttp_err(cqhttp_err_list list, char function[70], int flag, const char instructions[100])
 {
 	cqhttp_err err;
 	memset(&err, 0, sizeof(err));

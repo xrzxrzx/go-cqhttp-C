@@ -2,6 +2,7 @@
 #include"gocqhttp_API.h"
 #include"gocqhttp_Event.h"
 #include"gocqhttp_err.h"
+#include"robot.h"
 #include<stdio.h>
 #include<stdlib.h>
 #include<winsock2.h>
@@ -9,6 +10,7 @@
 #include<WS2tcpip.h>
 #include<string.h>
 #include<errno.h>
+#include<time.h>
 #pragma comment(lib, "ws2_32.lib")
 
 const char ip[] = "127.0.0.1";
@@ -36,17 +38,15 @@ void event_switch(void* data)
 {
 	char func[70] = "event_switch";
 
-	char* event_msg;	//待处理的事件
-	event_data msg;		//已解析事件
-	cqhttp_err_out(set_cqhttp_err(None, func, 0, NULL));
-	while (1)
+	char* event_msg = (char*)data;	//待处理的事件
+	event_data msg;					//已解析事件
+	cqhttp_err err;
+	
+	switch (event_type_switch(event_msg))
 	{
-		while (!(event_msg = event_get())) /*Sleep(100)*/;//获取事件（将前面注释去掉可以设置事件处理间隔，建议设置成100）
-		switch (event_type_switch(event_msg))
-		{
-			case message_event:		//消息事件
-				cqhttp_err_out(set_cqhttp_err(None, func, 1, "recv message_event"));
-				switch (message_type_switch(event_msg))
+		case message_event:		//消息事件
+			cqhttp_err_out(set_cqhttp_err(None, func, 1, "recv message_event"));
+			switch (message_type_switch(event_msg))
 				{
 					case private_message:	//私聊消息
 						cqhttp_err_out(set_cqhttp_err(None, func, 1, "recv parivate_message"));
@@ -56,7 +56,8 @@ void event_switch(void* data)
 					case group_message:		//群消息
 						cqhttp_err_out(set_cqhttp_err(None, func, 1, "recv group_message"));
 						msg.group_message = group_message_event_analysis(event_msg);
-						//code
+						err = group_message_switch(msg.group_message);
+						cqhttp_err_out(err);
 						break;
 					case unknow_message:	//未知
 						cqhttp_err_out(set_cqhttp_err(None, func, 1, "recv unknow_message"));
@@ -76,7 +77,7 @@ void event_switch(void* data)
 				cqhttp_err_out(set_cqhttp_err(None, func, 1, "recv unknow_event"));
 				//code
 				break;
-		}
-		free(event_msg);
 	}
+	free(event_msg);
+	
 }

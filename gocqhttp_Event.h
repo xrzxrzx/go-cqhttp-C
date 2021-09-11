@@ -9,6 +9,7 @@ typedef enum
 {
 	message_event,			//消息
 	notice_event,			//通知
+	meta_event,				//心跳
 	unknow_event			//未知
 }event_type;		//事件类型
 
@@ -59,8 +60,8 @@ typedef struct
 	}sender;		//发送人信息
 }private_message_event_data;
 
-#define PRIVATE_MESSAGE_EVENT_FORM_1	"%*[^{]{\"font\":%d,\"message\":\"%[^\"]\",\"message_id\":%d,\"message_type\":\"%[^\"]\",\"post_type\":\"%[^\"]\",\"raw_message\":\"%[^\"]\",\"self_id\":%ld,\"sender\":{\"age\":%d,\"nickname\":\"%[^\"]\",\"sex\":\"%[^\"]\",\"user_id\":%ld},\"sub_type\":\"%[^\"]\",\"target_id\":%ld,\"time\":%ld,\"user_id\":%ld%*s"
-#define PRIVATE_MESSAGE_EVENT_FORM_2	"%*[^{]{\"font\":%d,\"message\":\"%[^\"]\",\"message_id\":%d,\"message_type\":\"%[^\"]\",\"post_type\":\"%[^\"]\",\"raw_message\":\"%[^\"]\",\"self_id\":%ld,\"sender\":{\"age\":%d,\"group_id\":%ld,\"nickname\":\"%[^\"]\",\"sex\":\"%[^\"]\",\"user_id\":%ld},\"sub_type\":\"%[^\"]\",\"temp_sourc\":%d\"time\":%ld,\"user_id\":%ld%*s"
+#define PRIVATE_MESSAGE_EVENT_FORM_1	"%*[^{]{\"font\":%d,\"message\":\"%[^\"]\",\"message_id\":%d,\"message_type\":\"%[^\"]\",\"post_type\":\"%[^\"]\",\"raw_message\":\"%[^\"]\",\"self_id\":%lu,\"sender\":{\"age\":%d,\"nickname\":\"%[^\"]\",\"sex\":\"%[^\"]\",\"user_id\":%lu},\"sub_type\":\"%[^\"]\",\"target_id\":%ld,\"time\":%lu,\"user_id\":%lu}"
+#define PRIVATE_MESSAGE_EVENT_FORM_2	"%*[^{]{\"font\":%d,\"message\":\"%[^\"]\",\"message_id\":%d,\"message_type\":\"%[^\"]\",\"post_type\":\"%[^\"]\",\"raw_message\":\"%[^\"]\",\"self_id\":%lu,\"sender\":{\"age\":%d,\"group_id\":%lu,\"nickname\":\"%[^\"]\",\"sex\":\"%[^\"]\",\"user_id\":%lu},\"sub_type\":\"%[^\"]\",\"temp_sourc\":%d\"time\":%lu,\"user_id\":%lu}"
 
 private_message_event_data private_message_event_analysis(char* data);		//解析事件
 
@@ -101,7 +102,7 @@ typedef struct
 	}sender;		//发送人信息
 }group_message_event_data;
 
-#define GROUP_MESSAGE_EVENT_FORM		"%*[^{]{\"anonymous\":%[^,],\"font\":%d,\"group_id\":%ld,\"message\":\"%[^\"]\",\"message_id\":%d,\"message_seq\":%d,\"message_type\":\"%[^\"]\",\"post_type\":\"%[^\"]\",\"raw_message\":\"%[^\"]\",\"self_id\":%ld,\"sender\":{\"age\":%d,\"area\":\"%[^\"]\",\"card\":\"%[^\"]\",\"level\":\"%[^\"]\",\"nickname\":\"%[^\"]\",\"role\":\"%[^\"]\",\"sex\":\"%[^\"]\",\"title\":\"%[^\"]\",\"user_id\":%ld},\"sub_type\":\"%[^\"]\",\"time\":%ld,\"user_id\":%ld%*s"
+#define GROUP_MESSAGE_EVENT_FORM		"%*[^{]{\"anonymous\":%[^,],\"font\":%d,\"group_id\":%lu,\"message\":\"%[^\"]\",\"message_id\":%d,\"message_seq\":%d,\"message_type\":\"%[^\"]\",\"post_type\":\"%[^\"]\",\"raw_message\":\"%[^\"]\",\"self_id\":%lu,\"sender\":{%[^}]},\"sub_type\":\"%[^\"]\",\"time\":%lu,\"user_id\":%lu}"
 #define GROUP_MESSAGE_EVENT_FORM_ANOYMOUS	"{\"flag\":\"%[^\"]\",\"id\":%ld,\"name\":\"%[^\"]\"}"
 
 group_message_event_data group_message_event_analysis(char* data);			//解析事件
@@ -121,10 +122,6 @@ cqhttp_err init_gocqhttpEvent(
 	void(*response)(void* data)				//消息事件响应函数
 );
 
-/*事件列表操作*/
-void event_add(char* data);		//增加事件
-char* event_get(void);			//获取事件
-
 /*所有事件*/
 typedef union
 {
@@ -141,11 +138,11 @@ cqhttp_err recv_event(void);
 
 //上报类型检索
 #define EVENT_TYPE_FORM		"\"post_type\":\"%[^\"]\""
-event_type event_type_switch(char* data);
+event_type event_type_switch(const char* data);
 
 //消息类型检索
 #define	MESSAGE_TYPE_FORM	"\"message_type\":\"%[^\"]\""
-message_type message_type_switch(char* data);
+message_type message_type_switch(const char* data);
 
 //通知类型检索
 // #define NOTICE_TYPE_FORM	""
