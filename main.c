@@ -17,12 +17,15 @@ int main(void)
 {
 	cqhttp_err err;
 
+	RESTART:
 	err = init_gocqhttpAPI(ip, port_API);
 	cqhttp_err_out(err);
 	err = init_gocqhttpEvent(ip, port_Event, event_switch);
 	cqhttp_err_out(err);
 	err = recv_event();
 	cqhttp_err_out(err);
+	if (err.error == ConnectionError)	//如果连接中断尝试重新初始化
+		goto RESTART;
 
 	return 0;
 }
