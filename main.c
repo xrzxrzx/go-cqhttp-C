@@ -68,9 +68,8 @@ void event_switch(void* data)
 					break;
 				case group_message:		//群消息
 					cqhttp_err_out(set_cqhttp_err(None, func, 1, "recv group_message"));
-					msg.group_message = group_message_event_analysis(event_msg);
-					err = group_message_switch(msg.group_message);
-					cqhttp_err_out(err);
+					msg.group_message = group_message_event_analysis(event_msg);、
+					//code
 					break;
 				case unknow_message:	//未知
 					cqhttp_err_out(set_cqhttp_err(None, func, 1, "recv unknow_message"));
@@ -89,8 +88,7 @@ void event_switch(void* data)
 				case group_recall_notice:
 					cqhttp_err_out(set_cqhttp_err(None, func, 1, "recv group_recall_notice"));
 					msg.group_recall = group_recall_notice_analysis(event_msg);
-					err = del_msg(msg.group_recall);
-					cqhttp_err_out(err);
+					//code
 					break;
 			}
 			break;
