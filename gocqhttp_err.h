@@ -1,36 +1,37 @@
-#pragma once
+ï»¿#pragma once
 
 typedef enum
 {
-	None,					//Ã»ÓĞ´íÎó
-	WSAStartupError,		//WSAStartupº¯ÊıÒì³£
-	SocketInitError,		//socket³õÊ¼»¯Òì³£
-	BindError,				//°ó¶¨¶Ë¿ÚÊ§°Ü
-	ListenError,			//¼àÌı¶Ë¿ÚÊ§°Ü
-	AcceptFailed,			//½ÓÊÜÁ¬½ÓÊ§°Ü
-	ConnectionError,		//Á¬½Ó´íÎó
-	NetworkIOError,			//ÍøÂçIO´íÎó
-	NULLError,				//¿ÕÖ¸ÕëÒì³£
-	StringError				//×Ö·û´®²Ù×÷Ê§°Ü
-}cqhttp_err_list;	//´íÎóÀàĞÍ
+	None,					//æ²¡æœ‰é”™è¯¯
+	WSAStartupError,		//WSAStartupå‡½æ•°å¼‚å¸¸
+	SocketInitError,		//socketåˆå§‹åŒ–å¼‚å¸¸
+	BindError,				//ç»‘å®šç«¯å£å¤±è´¥
+	ListenError,			//ç›‘å¬ç«¯å£å¤±è´¥
+	AcceptFailed,			//æ¥å—è¿æ¥å¤±è´¥
+	ConnectionError,		//è¿æ¥é”™è¯¯
+	NetworkIOError,			//ç½‘ç»œIOé”™è¯¯
+	NULLError,				//ç©ºæŒ‡é’ˆå¼‚å¸¸
+	NotFound,				//æ–‡ä»¶æœªæ‰¾åˆ°
+	StringError				//å­—ç¬¦ä¸²æ“ä½œå¤±è´¥
+}cqhttp_err_list;	//é”™è¯¯ç±»å‹
 
 typedef struct
 {
-	cqhttp_err_list error;	//´íÎóÀàĞÍ
-	char function[50];		//´íÎóº¯Êı
-	int flag;				//ÊÇ·ñÓµÓĞ¸½¼ÓËµÃ÷
-	char instructions[100];	//¸½¼ÓËµÃ÷
-} cqhttp_err;		//´íÎó·â×°
+	cqhttp_err_list error;	//é”™è¯¯ç±»å‹
+	char function[70];		//é”™è¯¯å‡½æ•°
+	int flag;				//æ˜¯å¦æ‹¥æœ‰é™„åŠ è¯´æ˜
+	char instructions[100];	//é™„åŠ è¯´æ˜
+} cqhttp_err;		//é”™è¯¯å°è£…
 
-//ÉèÖÃcqhttp_err
+//è®¾ç½®cqhttp_err
 cqhttp_err set_cqhttp_err(
-	cqhttp_err_list list,			//´íÎóÀàĞÍ
-	char function[70],				//´íÎóº¯Êı
-	int flag,						//ÊÇ·ñÓµÓĞ¸½¼ÓËµÃ÷
-	const char instructions[100]	//¸½¼ÓËµÃ÷
+	cqhttp_err_list list,			//é”™è¯¯ç±»å‹
+	const char function[70],		//é”™è¯¯å‡½æ•°
+	int flag,						//æ˜¯å¦æ‹¥æœ‰é™„åŠ è¯´æ˜
+	char instructions[100]			//é™„åŠ è¯´æ˜
 );
 
-//Êä³ö´íÎó
+//è¾“å‡ºé”™è¯¯
 cqhttp_err_list cqhttp_err_out(
-	cqhttp_err err		//´íÎóĞÅÏ¢
+	cqhttp_err err		//é”™è¯¯ä¿¡æ¯
 );

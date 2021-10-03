@@ -1,129 +1,180 @@
-#pragma once
+ï»¿#pragma once
 #include"gocqhttp_err.h"
 
-/*³õÊ¼»¯*/
+/*åˆå§‹åŒ–*/
 cqhttp_err init_gocqhttpAPI(const char* ip, const int port);
 
-/*ÍË³ö*/
+/*é€€å‡º*/
 void exit_gocqhttpAPI(void);
 
 /////////////////////////////////
-/*send_private_msg ·¢ËÍË½ÃÜÏûÏ¢*/
+/*send_private_msg å‘é€ç§å¯†æ¶ˆæ¯*/
 /////////////////////////////////
 
 #define API_SEND_PRIVATE_MSG_FORM	"GET /send_private_msg?user_id=%u&group_id=%u&message=%s&auto_escape=%d HTTP/1.1\r\nHost: 127.0.0.1:5700\r\nConnection: keep-alive\r\n\r\n"
-#define API_SEND_PRIVATE_MSG_RECV	"%*[^{]{\"data\":{\"message\":%d},\"retcode\":%d,\"status\":\"%[^\"]\""
+#define API_SEND_PRIVATE_MSG_RECV	"%*[^{]{\"data\":{\"message_id\":%d},\"retcode\":%d,\"status\":\"%[^\"]\""
 
 typedef struct
 {
-	unsigned long user_id;	//¶Ô·½ QQ ºÅ
-	unsigned long group_id;	//Ö÷¶¯·¢ÆğÁÙÊ±»á»°ÈººÅ(»úÆ÷ÈË±¾Éí±ØĞëÊÇ¹ÜÀíÔ±/ÈºÖ÷)
-	char message[300];		//Òª·¢ËÍµÄÄÚÈİ
-	int auto_escape;		//ÏûÏ¢ÄÚÈİÊÇ·ñ×÷Îª´¿ÎÄ±¾·¢ËÍ£¬Ö»ÔÚ message ×Ö¶ÎÊÇ×Ö·û´®Ê±ÓĞĞ§(Ä¬ÈÏÖµ false£©
-}send_private_msg_s;	//·¢ËÍÏûÏ¢°ü
+	unsigned long user_id;	//å¯¹æ–¹ QQ å·
+	unsigned long group_id;	//ä¸»åŠ¨å‘èµ·ä¸´æ—¶ä¼šè¯ç¾¤å·(æœºå™¨äººæœ¬èº«å¿…é¡»æ˜¯ç®¡ç†å‘˜/ç¾¤ä¸»)
+	char message[1500];		//è¦å‘é€çš„å†…å®¹
+	int auto_escape;		//æ¶ˆæ¯å†…å®¹æ˜¯å¦ä½œä¸ºçº¯æ–‡æœ¬å‘é€ï¼Œåªåœ¨ message å­—æ®µæ˜¯å­—ç¬¦ä¸²æ—¶æœ‰æ•ˆ(é»˜è®¤å€¼ falseï¼‰
+}send_private_msg_s;	//å‘é€æ¶ˆæ¯åŒ…
 
 typedef struct
 {
 	struct
 	{
-		int message_id;		//ÏûÏ¢ID
-	}data;	//·µ»ØÊı¾İ
-	int retcode;			//·µ»ØÂë
-	char status[10];		//×´Ì¬
-}send_private_msg_r;	//½ÓÊÕÏûÏ¢°ü
+		int message_id;		//æ¶ˆæ¯ID
+	}data;	//è¿”å›æ•°æ®
+	int retcode;			//è¿”å›ç 
+	char status[10];		//çŠ¶æ€
+}send_private_msg_r;	//æ¥æ”¶æ¶ˆæ¯åŒ…
 
 typedef union
 {
-	send_private_msg_s send_msg;	//·¢°ü
-	send_private_msg_r recv_msg;	//ÊÕ°ü
-}send_private_msg_data;//×éºÏ°ü
+	send_private_msg_s send_msg;	//å‘åŒ…
+	send_private_msg_r recv_msg;	//æ”¶åŒ…
+}send_private_msg_data;//ç»„åˆåŒ…
 
 //API
 cqhttp_err send_private_msg(
-	send_private_msg_data* data				//·¢°ü
+	send_private_msg_data* data				//å‘åŒ…
 );
 
-//»ñÈ¡·¢°ü
+//è·å–å‘åŒ…
 send_private_msg_data* New_send_private_msg(
-	unsigned long user_id,					//ÓÃ»§ID
-	unsigned long group_id,					//ÈººÅ
-	char message[300],						//ÏûÏ¢
-	int auto_escape							//ÊÇ·ñ´¿ÎÄ±¾
+	unsigned long user_id,					//ç”¨æˆ·ID
+	unsigned long group_id,					//ç¾¤å·
+	char message[1500],						//æ¶ˆæ¯
+	int auto_escape							//æ˜¯å¦çº¯æ–‡æœ¬
 );
 
 /////////////////////////////
-/*send_group_msg ·¢ËÍÈºÏûÏ¢*/
+/*send_group_msg å‘é€ç¾¤æ¶ˆæ¯*/
 /////////////////////////////
 
 #define API_SEND_GROUP_MSG_FORM		"GET /send_group_msg?group_id=%ld&message=%s&auto_escape=%d HTTP/1.1\r\nHost: 127.0.0.1:5700\r\nConnection: keep-alive\r\n\r\n"
-#define API_SEND_GROUP_MSG_RECV		"%*[^{]{\"data\":{\"message\":%d},\"retcode\":%d,\"status\":\"%[^\"]\""
+#define API_SEND_GROUP_MSG_RECV		"%*[^{]{\"data\":{\"message_id\":%d},\"retcode\":%d,\"status\":\"%[^\"]\"}"
 
 typedef struct
 {
-	unsigned long group_id;	//ÈººÅ
-	char message[300];		//Òª·¢ËÍµÄÄÚÈİ
-	int auto_escape;		//ÏûÏ¢ÄÚÈİÊÇ·ñ×÷Îª´¿ÎÄ±¾·¢ËÍ£¬Ö»ÔÚ message ×Ö¶ÎÊÇ×Ö·û´®Ê±ÓĞĞ§(Ä¬ÈÏÖµ false£©
-}send_group_msg_s;  //·¢ËÍÏûÏ¢°ü
+	unsigned long group_id;	//ç¾¤å·
+	char message[1500];		//è¦å‘é€çš„å†…å®¹
+	int auto_escape;		//æ¶ˆæ¯å†…å®¹æ˜¯å¦ä½œä¸ºçº¯æ–‡æœ¬å‘é€ï¼Œåªåœ¨ message å­—æ®µæ˜¯å­—ç¬¦ä¸²æ—¶æœ‰æ•ˆ(é»˜è®¤å€¼ falseï¼‰
+}send_group_msg_s;  //å‘é€æ¶ˆæ¯åŒ…
 
 typedef struct
 {
 	struct
 	{
-		int message_id;		//ÏûÏ¢ID
-	}data;	//·µ»ØÊı¾İ
-	int retcode;			//·µ»ØÂë
-	char status[10];		//×´Ì¬
-}send_group_msg_r;  //½ÓÊÕÏûÏ¢°ü
+		int message_id;		//æ¶ˆæ¯ID
+	}data;	//è¿”å›æ•°æ®
+	int retcode;			//è¿”å›ç 
+	char status[10];		//çŠ¶æ€
+}send_group_msg_r;  //æ¥æ”¶æ¶ˆæ¯åŒ…
 
 typedef union
 {
-	send_group_msg_s send_msg;		//·¢°ü
-	send_group_msg_r recv_msg;		//ÊÕ°ü
-}send_group_msg_data;//×éºÏ°ü
+	send_group_msg_s send_msg;		//å‘åŒ…
+	send_group_msg_r recv_msg;		//æ”¶åŒ…
+}send_group_msg_data;//ç»„åˆåŒ…
 
 //API
 cqhttp_err send_group_msg(
-	send_group_msg_data* data				//·¢°ü
+	send_group_msg_data* data				//å‘åŒ…
 );
 
-//»ñÈ¡·¢°ü
+//è·å–å‘åŒ…
 send_group_msg_data* New_send_group_msg(
-	unsigned long group_id,					//ÈººÅ
-	char message[300],						//ÏûÏ¢
-	int auto_escape							//ÊÇ·ñ´¿ÎÄ±¾
+	unsigned long group_id,					//ç¾¤å·
+	char message[1500],						//æ¶ˆæ¯
+	int auto_escape							//æ˜¯å¦çº¯æ–‡æœ¬
 );
 
-///////////////////////
-/*delete_msg ³·»ØÏûÏ¢*/
-///////////////////////
+////////////
+/*è·å–æ¶ˆæ¯*/
+////////////
 
-#define API_DELETE_MSG_FORM			"GET /delete_msg?message_id=%d HTTP/1.1\r\nHost: 127.0.0.1:5700\r\nConnection: keep-alive\r\n\r\n"
-#define API_DELETE_MSG_RECV			"%*[^{]{\"data\":%[^,],\"retcode\":%d,\"status\":\"%[^\"]\""
-
-typedef struct
-{
-	int message_id;	//ÏûÏ¢ ID
-}delete_msg_s;		//·¢ËÍÏûÏ¢°ü
+#define API_GET_MSG_FORM			"GET /get_msg?message_id=%d HTTP/1.1\r\nHost: 127.0.0.1:5700\r\nConnection: keep-alive\r\n\r\n"
+#define API_GET_MSG_RECV			"%*[^{]{\"data\":{\"group\":%[^,],\"group_id\":%lu,\"message\":\"%[^\"]\",\"message_id\":%d,\"message_seq\":%d,\"message_type\":\"%[^\"]\",\"raw_message\":\"%[^\"]\",\"real_id\":%d,\"sender\":{\"nickname\":\"%[^\"]\",\"user_id\":%lu},\"time\":%d},\"retcode\":%d,\"status\":\"%[^\"]\"}"
 
 typedef struct
 {
-	char* data[10];			//·µ»ØÊı¾İ
-	int retcode;			//·µ»ØÂë
-	char status[10];		//×´Ì¬
-}delete_msg_r;		//½ÓÊÕÏûÏ¢°ü
+	int message_id;	//æ¶ˆæ¯ ID
+}get_msg_s;			//å‘é€æ¶ˆæ¯åŒ…
+
+typedef struct
+{
+	struct
+	{
+		char group[10];
+		unsigned long group_id;		//ç¾¤å·
+		int message_id;				//æ¶ˆæ¯ ID
+		int real_id;				//çœŸå® ID
+		int message_seq;
+		char message_type[20];		//æ¶ˆæ¯ç±»å‹
+		struct
+		{
+			char nickname[100];		//æ˜µç§°
+			unsigned long user_id;	//ç”¨æˆ·QQå·
+		}sender;		//å‘é€è€…
+		int time;					//å‘é€æ—¶é—´
+		char message[1024];			//æ¶ˆæ¯ç±»å®¹
+		char raw_message[1024];		//åŸå§‹æ¶ˆæ¯å†…å®¹
+	}data;			//è¿”å›æ•°æ®
+	int retcode;					//è¿”å›ç 
+	char status[10];				//çŠ¶æ€
+}get_msg_r;			//æ¥æ”¶æ¶ˆæ¯åŒ…
 
 typedef union
 {
-	delete_msg_s send_msg;			//·¢°ü
-	delete_msg_r recv_msg;			//ÊÕ°ü
-}delete_msg_data;		//×éºÏ°ü
+	get_msg_s send_msg;
+	get_msg_r recv_msg;
+}get_msg_data;			//ç»„åˆåŒ…
+
+//API
+cqhttp_err get_msg(
+	get_msg_data* data					//å‘åŒ…
+);
+
+//è·å–å‘åŒ…
+get_msg_data* New_get_msg(
+	int message_id							//æ¶ˆæ¯ID
+);
+
+///////////////////////
+/*delete_msg æ’¤å›æ¶ˆæ¯*/
+///////////////////////
+
+#define API_DELETE_MSG_FORM			"GET /delete_msg?message_id=%d HTTP/1.1\r\nHost: 127.0.0.1:5700\r\nConnection: keep-alive\r\n\r\n"
+#define API_DELETE_MSG_RECV			"%*[^{]{\"data\":%[^,],\"retcode\":%d,\"status\":\"%[^\"]\"}"
+
+typedef struct
+{
+	int message_id;	//æ¶ˆæ¯ ID
+}delete_msg_s;		//å‘é€æ¶ˆæ¯åŒ…
+
+typedef struct
+{
+	char* data[10];			//è¿”å›æ•°æ®
+	int retcode;			//è¿”å›ç 
+	char status[10];		//çŠ¶æ€
+}delete_msg_r;		//æ¥æ”¶æ¶ˆæ¯åŒ…
+
+typedef union
+{
+	delete_msg_s send_msg;			//å‘åŒ…
+	delete_msg_r recv_msg;			//æ”¶åŒ…
+}delete_msg_data;		//ç»„åˆåŒ…
 
 //API
 cqhttp_err delete_msg(
-	delete_msg_data* data					//·¢°ü
+	delete_msg_data* data					//å‘åŒ…
 );
 
-//»ñÈ¡·¢°ü
+//è·å–å‘åŒ…
 delete_msg_data* New_delete_msg(
-	int message_id							//ÏûÏ¢ID
+	int message_id							//æ¶ˆæ¯ID
 );

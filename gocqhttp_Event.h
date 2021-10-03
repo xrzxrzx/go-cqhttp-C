@@ -1,149 +1,164 @@
-#pragma once
+ï»¿#pragma once
 #include"gocqhttp_err.h"
 
 #define ACCEPT_COUNT_MAX	20
 #define Event_Response		"HTTP/1.1 204 OK\r\n\r\n"
 
-/*ÊÂ¼şÏûÏ¢*/
+/*äº‹ä»¶æ¶ˆæ¯*/
 typedef enum
 {
-	message_event,			//ÏûÏ¢
-	notice_event,			//Í¨Öª
-	meta_event,				//ĞÄÌø
-	unknow_event			//Î´Öª
-}event_type;		//ÊÂ¼şÀàĞÍ
+	message_event,			//æ¶ˆæ¯
+	notice_event,			//é€šçŸ¥
+	meta_event,				//å¿ƒè·³
+	request_event,			//è¯·æ±‚
+	essence_event,			//ç²¾å
+	unknow_event			//æœªçŸ¥
+}event_type;		//äº‹ä»¶ç±»å‹
 
 typedef enum
 {
-	private_message,	//Ë½ÁÄÊÂ¼ş
-	group_message,		//ÈºÏûÏ¢ÊÂ¼ş
-	unknow_message		//Î´ÖªÏûÏ¢ÊÂ¼ş
-}message_type;		//ÏûÏ¢ÊÂ¼şÀàĞÍ
+	private_message,		//ç§èŠäº‹ä»¶
+	group_message,			//ç¾¤æ¶ˆæ¯äº‹ä»¶
+	unknow_message			//æœªçŸ¥æ¶ˆæ¯äº‹ä»¶
+}message_type;		//æ¶ˆæ¯äº‹ä»¶ç±»å‹
 
-typedef struct Event_List_Node
+typedef enum
 {
-	char* msg;						//ÊÂ¼şÏûÏ¢
-	struct Event_List_Node* next;	//ÏÂÒ»½Úµã
-}event_list_node;	//ÏûÏ¢ÊÂ¼ş½Úµã£¨Á´±í£©
-
-typedef struct
-{
-	int read;				//ÊÇ·ñÔÊĞíevebt_getº¯Êı¶ÁÈ¡
-	event_list_node* head;	//ÊÂ¼ş
-}event_list_head;					//ÏûÏ¢ÊÂ¼ş½ÚµãÍ·£¨Á´±í£©
-event_list_head head;
+	group_recall_notice,	//ç¾¤æ¶ˆæ¯æ’¤å›
+	friend_recall_notice,	//å¥½å‹æ¶ˆæ¯æ’¤å›
+	unknow_notice			//æœªçŸ¥ä¸ŠæŠ¥äº‹ä»¶
+}notice_type;		//ä¸ŠæŠ¥äº‹ä»¶ç±»å‹
 
 ////////////
-/*Ë½ÁÄÊÂ¼ş*/
+/*ç§èŠäº‹ä»¶*/
 ////////////
 typedef struct
 {
-	unsigned long time;			//ÊÂ¼ş·¢ÉúµÄÊ±¼ä´Á
-	unsigned long self_id;		//ÊÕµ½ÊÂ¼şµÄ»úÆ÷ÈË QQ ºÅ
-	char post_type[20];			//ÉÏ±¨ÀàĞÍ
-	char message_type[20];		//ÏûÏ¢ÀàĞÍ
-	char sub_type[20];			//ÏûÏ¢×ÓÀàĞÍ
-	unsigned long target_id;	//ÎÒÒ²²»ÖªµÀÊÇ¸ÉÉ¶µÄ£¬ÎÄµµÒ²Ã»Ğ´£¬ÎÊÁË¿ª·¢ÕßËûÒ²²»ÖªµÀ£¬µ«ÖµÓ¦¸ÃºÍself_id×Ö¶ÎÒ»Ñù
-	int temp_source;			//ÁÙÊ±¶Ô»°À´Ô´
-	int message_id;				//ÏûÏ¢ID
-	unsigned long user_id;		//·¢ËÍÕßQQºÅ
-	char message[1024];			//ÏûÏ¢ÄÚÈİ
-	char raw_message[1024];		//Ô­Ê¼ÏûÏ¢ÄÚÈİ
-	int font;					//×ÖÌå
+	unsigned long time;			//äº‹ä»¶å‘ç”Ÿçš„æ—¶é—´æˆ³
+	unsigned long self_id;		//æ”¶åˆ°äº‹ä»¶çš„æœºå™¨äºº QQ å·
+	char post_type[20];			//ä¸ŠæŠ¥ç±»å‹
+	char message_type[20];		//æ¶ˆæ¯ç±»å‹
+	char sub_type[20];			//æ¶ˆæ¯å­ç±»å‹
+	unsigned long target_id;	//æˆ‘ä¹Ÿä¸çŸ¥é“æ˜¯å¹²å•¥çš„ï¼Œæ–‡æ¡£ä¹Ÿæ²¡å†™ï¼Œé—®äº†å¼€å‘è€…ä»–ä¹Ÿä¸çŸ¥é“ï¼Œä½†å€¼åº”è¯¥å’Œself_idå­—æ®µä¸€æ ·
+	int temp_source;			//ä¸´æ—¶å¯¹è¯æ¥æº
+	int message_id;				//æ¶ˆæ¯ID
+	unsigned long user_id;		//å‘é€è€…QQå·
+	char message[1024];			//æ¶ˆæ¯å†…å®¹
+	char raw_message[1024];		//åŸå§‹æ¶ˆæ¯å†…å®¹
+	int font;					//å­—ä½“
 	struct
 	{
-		unsigned long user_id;	//·¢ËÍÕßQQºÅ
-		unsigned long group_id;	//ÈººÅ
-		char nickname[50];		//êÇ³Æ
-		char sex[10];			//ĞÔ±ğ
-		int age;				//ÄêÁä
-	}sender;		//·¢ËÍÈËĞÅÏ¢
+		unsigned long user_id;	//å‘é€è€…QQå·
+		unsigned long group_id;	//ç¾¤å·
+		char nickname[50];		//æ˜µç§°
+		char sex[10];			//æ€§åˆ«
+		int age;				//å¹´é¾„
+	}sender;		//å‘é€äººä¿¡æ¯
 }private_message_event_data;
 
 #define PRIVATE_MESSAGE_EVENT_FORM_1	"%*[^{]{\"font\":%d,\"message\":\"%[^\"]\",\"message_id\":%d,\"message_type\":\"%[^\"]\",\"post_type\":\"%[^\"]\",\"raw_message\":\"%[^\"]\",\"self_id\":%lu,\"sender\":{\"age\":%d,\"nickname\":\"%[^\"]\",\"sex\":\"%[^\"]\",\"user_id\":%lu},\"sub_type\":\"%[^\"]\",\"target_id\":%ld,\"time\":%lu,\"user_id\":%lu}"
 #define PRIVATE_MESSAGE_EVENT_FORM_2	"%*[^{]{\"font\":%d,\"message\":\"%[^\"]\",\"message_id\":%d,\"message_type\":\"%[^\"]\",\"post_type\":\"%[^\"]\",\"raw_message\":\"%[^\"]\",\"self_id\":%lu,\"sender\":{\"age\":%d,\"group_id\":%lu,\"nickname\":\"%[^\"]\",\"sex\":\"%[^\"]\",\"user_id\":%lu},\"sub_type\":\"%[^\"]\",\"temp_sourc\":%d\"time\":%lu,\"user_id\":%lu}"
 
-private_message_event_data private_message_event_analysis(char* data);		//½âÎöÊÂ¼ş
+private_message_event_data private_message_event_analysis(char* data);		//è§£æäº‹ä»¶
 
 //////////////
-/*ÈºÏûÏ¢ÊÂ¼ş*/
+/*ç¾¤æ¶ˆæ¯äº‹ä»¶*/
 //////////////
 typedef struct
 {
-	unsigned long time;			//ÊÂ¼ş·¢ÉúÊ±¼ä´Á
-	unsigned long self_id;		//ÊÕµ½ÊÂ¼şµÄ»úÆ÷ÈËQQºÅ
-	char post_type[20];			//ÉÏ±¨ÀàĞÍ
-	char message_type[20];		//ÏûÏ¢ÀàĞÍ
-	int message_seq;			//±ğÎÊÎªÊ²Ã´Õâ¸öÎÄµµÀïÃ»ÓĞ£¬ÎÒÎÊÁË¿ª·¢Õß£¬ËûÒ²ÍüÁË
-	char sub_type[20];			//ÏûÏ¢×ÓÀàĞÍ
-	int message_id;				//ÏûÏ¢ID
-	unsigned long group_id;		//ÈººÅ
-	unsigned long user_id;		//·¢ËÍÕßQQºÅ
+	unsigned long time;			//äº‹ä»¶å‘ç”Ÿæ—¶é—´æˆ³
+	unsigned long self_id;		//æ”¶åˆ°äº‹ä»¶çš„æœºå™¨äººQQå·
+	char post_type[20];			//ä¸ŠæŠ¥ç±»å‹
+	char message_type[20];		//æ¶ˆæ¯ç±»å‹
+	int message_seq;			//åˆ«é—®ä¸ºä»€ä¹ˆè¿™ä¸ªæ–‡æ¡£é‡Œæ²¡æœ‰ï¼Œæˆ‘é—®äº†å¼€å‘è€…ï¼Œä»–ä¹Ÿå¿˜äº†
+	char sub_type[20];			//æ¶ˆæ¯å­ç±»å‹
+	int message_id;				//æ¶ˆæ¯ID
+	unsigned long group_id;		//ç¾¤å·
+	unsigned long user_id;		//å‘é€è€…QQå·
 	struct
 	{
-		unsigned long id;		//ÄäÃûÓÃ»§ID
-		char name[40];			//ÄäÃûÓÃ»§êÇ³Æ
-		char flag[100];			//ÄäÃûÓÃ»§flag£¬µ÷ÓÃ½ûÑÔAPIÊ±Ğè´«Èë
-	}anonymous;	//ÄäÃûÏûÏ¢(·ÇÄäÃûÎªnull)
-	char message[1024];			//ÏûÏ¢ÀàÈİ
-	char raw_message[1024];		//Ô­Ê¼ÏûÏ¢ÄÚÈİ
-	int font;					//×ÖÌå
+		unsigned long id;		//åŒ¿åç”¨æˆ·ID
+		char name[40];			//åŒ¿åç”¨æˆ·æ˜µç§°
+		char flag[100];			//åŒ¿åç”¨æˆ·flagï¼Œè°ƒç”¨ç¦è¨€APIæ—¶éœ€ä¼ å…¥
+	}anonymous;	//åŒ¿åæ¶ˆæ¯(éåŒ¿åä¸ºnull)
+	char message[1024];			//æ¶ˆæ¯ç±»å®¹
+	char raw_message[1024];		//åŸå§‹æ¶ˆæ¯å†…å®¹
+	int font;					//å­—ä½“
 	struct
 	{
-		unsigned long user_id;	//·¢ËÍÕßQQºÅ
-		char nickname[50];		//êÇ³Æ
-		char card[50];			//ÈºÃûÆ¬/±¸×¢
-		char sex[10];			//ĞÔ±ğ
-		int age;				//ÄêÁä
-		char area[100];			//µØÇø
-		char level[10];			//³ÉÔ±µÈ¼¶
-		char role[20];			//½ÇÉ«
-		char title[20];			//×¨ÊôÍ·ÏÎ
-	}sender;		//·¢ËÍÈËĞÅÏ¢
+		unsigned long user_id;	//å‘é€è€…QQå·
+		char nickname[50];		//æ˜µç§°
+		char card[50];			//ç¾¤åç‰‡/å¤‡æ³¨
+		char sex[10];			//æ€§åˆ«
+		int age;				//å¹´é¾„
+		char area[100];			//åœ°åŒº
+		char level[10];			//æˆå‘˜ç­‰çº§
+		char role[20];			//è§’è‰²
+		char title[20];			//ä¸“å±å¤´è¡”
+	}sender;		//å‘é€äººä¿¡æ¯
 }group_message_event_data;
 
 #define GROUP_MESSAGE_EVENT_FORM		"%*[^{]{\"anonymous\":%[^,],\"font\":%d,\"group_id\":%lu,\"message\":\"%[^\"]\",\"message_id\":%d,\"message_seq\":%d,\"message_type\":\"%[^\"]\",\"post_type\":\"%[^\"]\",\"raw_message\":\"%[^\"]\",\"self_id\":%lu,\"sender\":{%[^}]},\"sub_type\":\"%[^\"]\",\"time\":%lu,\"user_id\":%lu}"
-#define GROUP_MESSAGE_EVENT_FORM_ANOYMOUS	"{\"flag\":\"%[^\"]\",\"id\":%ld,\"name\":\"%[^\"]\"}"
+#define GROUP_MESSAGE_EVENT_CQ_FORM		"%*[^{]{\"anonymous\":%[^,],\"font\":%d,\"group_id\":%lu,\"message\":\"%[^\"]\",\"message_id\":%d,\"message_seq\":%d,\"message_type\":\"%[^\"]\",\"post_type\":\"%[^\"]\",\"raw_message\":\"[%[^]]]\",\"self_id\":%lu,\"sender\":{%[^}]},\"sub_type\":\"%[^\"]\",\"time\":%lu,\"user_id\":%lu}"
+#define GROUP_MESSAGE_EVENT_FORM_ANOYMOUS	"{\"flag\":\"%[^\"]\",\"id\":%lu,\"name\":\"%[^\"]\"}"
 
-group_message_event_data group_message_event_analysis(char* data);			//½âÎöÊÂ¼ş
+group_message_event_data group_message_event_analysis(char* data);			//è§£æäº‹ä»¶
+
+//////////////////
+/*ç¾¤æ¶ˆæ¯æ’¤å›äº‹ä»¶*/
+//////////////////
+typedef struct
+{
+	unsigned long time;			//äº‹ä»¶å‘ç”Ÿæ—¶é—´æˆ³
+	unsigned long self_id;		//æ”¶åˆ°äº‹ä»¶çš„æœºå™¨äººQQå·
+	char post_type[20];			//ä¸ŠæŠ¥ç±»å‹
+	char notice_type[20];		//é€šçŸ¥ç±»å‹
+	unsigned long group_id;		//ç¾¤å·
+	unsigned long user_id;		//å‘é€è€…QQå·
+	unsigned long operator_id;	//æ“ä½œè€…QQå·
+	int message_id;				//æ¶ˆæ¯ID
+	char message[1024];			//æ¶ˆæ¯ç±»å®¹
+}group_recall_notice_data;
+
+#define GROUP_RECALL_NOTICE_EVENT_FORM	"%*[^{]{\"group_id\":%lu,\"message_id\":%d,\"message\":\"%[^\"]\",\"notice_type\":\"%[^\"]\",\"operator_id\":%lu,\"post_type\":\"%[^\"]\",\"self_id\":%lu,\"time\":%lu,\"user_id\":%lu}"
+
+group_recall_notice_data group_recall_notice_analysis(char* data);			//è§£æäº‹ä»¶
 
 ////////////
-/*Î´ÖªÊÂ¼ş*/
+/*æœªçŸ¥äº‹ä»¶*/
 ////////////
 typedef struct
 {
-	char* data;					//ÊÂ¼şÀàÈİ
+	char* data;					//äº‹ä»¶ç±»å®¹
 }unknow_event_data;
 
-/*´´½¨Event·şÎñ¶Ë*/
+/*åˆ›å»ºEventæœåŠ¡ç«¯*/
 cqhttp_err init_gocqhttpEvent(
 	const char* ip,
 	const int port,
-	void(*response)(void* data)				//ÏûÏ¢ÊÂ¼şÏìÓ¦º¯Êı
+	void(*response)(void* data)				//æ¶ˆæ¯äº‹ä»¶å“åº”å‡½æ•°
 );
 
-/*ËùÓĞÊÂ¼ş*/
+/*æ‰€æœ‰äº‹ä»¶*/
 typedef union
 {
 	private_message_event_data private_message;
 	group_message_event_data group_message;
+	group_recall_notice_data group_recall;
 }event_data;
 
-/*½ÓÊÕEvent*/
+/*æ¥æ”¶Event*/
 cqhttp_err recv_event(void);
 
 ////////////////
-/*ÊÂ¼şÏûÏ¢¼ìË÷*/
+/*äº‹ä»¶æ¶ˆæ¯æ£€ç´¢*/
 ////////////////
 
-//ÉÏ±¨ÀàĞÍ¼ìË÷
-#define EVENT_TYPE_FORM		"\"post_type\":\"%[^\"]\""
+//ä¸ŠæŠ¥ç±»å‹æ£€ç´¢
 event_type event_type_switch(const char* data);
 
-//ÏûÏ¢ÀàĞÍ¼ìË÷
-#define	MESSAGE_TYPE_FORM	"\"message_type\":\"%[^\"]\""
+//æ¶ˆæ¯ç±»å‹æ£€ç´¢
 message_type message_type_switch(const char* data);
 
-//Í¨ÖªÀàĞÍ¼ìË÷
-// #define NOTICE_TYPE_FORM	""
-//notice_type notice_type_switch(char* data);
+//é€šçŸ¥ç±»å‹æ£€ç´¢
+notice_type notice_type_switch(char* data);

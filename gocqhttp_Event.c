@@ -1,4 +1,4 @@
-#include "gocqhttp_Event.h"
+ï»¿#include "gocqhttp_Event.h"
 #include "gocqhttp_err.h"
 #include<process.h>
 #include<stdio.h>
@@ -12,100 +12,106 @@
 
 /*socket*/
 
-//socket·µ»ØµÄÎÄ¼şÃèÊö·û
+//socketè¿”å›çš„æ–‡ä»¶æè¿°ç¬¦
 SOCKET serverSocket;
-SOCKET client;			//¿Í»§¶Ë
+SOCKET client;			//å®¢æˆ·ç«¯
 
-//socketÊı¾İ
-SOCKADDR_IN server_addr;//·şÎñ¶Ë
-SOCKADDR_IN client_addr;//¿Í»§¶Ë
+//socketæ•°æ®
+SOCKADDR_IN server_addr;//æœåŠ¡ç«¯
+SOCKADDR_IN client_addr;//å®¢æˆ·ç«¯
 
-//½á¹¹´óĞ¡
+
+//ç»“æ„å¤§å°
 int addr_len = sizeof(SOCKADDR_IN);
 
-void (*event_response)(void* data);				//ÊÂ¼şÀàĞÍÏìÓ¦º¯Êı
+void (*event_response)(void* data);				//äº‹ä»¶ç±»å‹å“åº”å‡½æ•°
 
-/*´´½¨Event·şÎñ¶Ë*/
+/*åˆ›å»ºEventæœåŠ¡ç«¯*/
 cqhttp_err init_gocqhttpEvent(const char* ip, const int port, void(*response)(void* data))
 {
 	char func[70] = "init_gocqhttpEvent";
 
 	if (!response)
-		return set_cqhttp_err(NULLError, func, 1, "\"response\"ÊÇ¿ÕÖ¸Õë");
+		return set_cqhttp_err(NULLError, func, 1, "\"response\"æ˜¯ç©ºæŒ‡é’ˆ");
 
-	//³õÊ¼»¯
+	//åˆå§‹åŒ–
 	memset(&server_addr, 0, sizeof(SOCKADDR_IN));
-	memset(&head, 0, sizeof(head));
 
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_port = htons(port);
 	inet_pton(AF_INET, ip, (void*)&server_addr.sin_addr);
 
-	head.head = NULL;
+	event_response = response;//è®¾ç½®äº‹ä»¶åˆ¤æ–­å‡½æ•°
 
-	event_response = response;//ÉèÖÃÊÂ¼şÅĞ¶Ïº¯Êı
-
-	//¶¯Ì¬¿â³õÊ¼»¯
+	//åŠ¨æ€åº“åˆå§‹åŒ–
 	WSADATA wsaData;
 	int e = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (e)
 		return set_cqhttp_err(WSAStartupError, func, 0, NULL);
 
-	//´´½¨Ì×½Ó×Ö
+	//åˆ›å»ºå¥—æ¥å­—
 	if ((serverSocket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 		return set_cqhttp_err(SocketInitError, func, 0, NULL);
 
-	//°ó¶¨¶Ë¿Ú
+	//ç»‘å®šç«¯å£
 	if (bind(serverSocket, (SOCKADDR*)&server_addr, sizeof(server_addr)) < 0)
 		return set_cqhttp_err(BindError, func, 0, NULL);
 
-	//¼àÌı¶Ë¿Ú
+	//ç›‘å¬ç«¯å£
 	if (listen(serverSocket, 1) < 0)
 		return set_cqhttp_err(ListenError, func, 0, NULL);
 
-	//¿ªÊ¼
-	int accept_count;
-	for (accept_count = 0; accept_count < ACCEPT_COUNT_MAX; accept_count++)
-	{
-		printf("³¢ÊÔ½ÓÊÜÁ¬½Ó£º%d", accept_count + 1);
-		if ((client = accept(serverSocket, (SOCKADDR*)&client_addr, (socklen_t*)&addr_len)) > 0)
-			break;
-	}
-	if (accept_count > 20)
+	//å¼€å§‹
+	
+	puts("å°è¯•æ¥å—è¿æ¥...");
+	if((client = accept(serverSocket, (SOCKADDR*)&client_addr, (socklen_t*)&addr_len)) < 0)
 		return set_cqhttp_err(AcceptFailed, func, 0, NULL);
 
-	puts("ÒÑ½ÓÊÜÁ¬½Ó£¡");
+	puts("å·²æ¥å—è¿æ¥ï¼");
 	return set_cqhttp_err(None, func, 0, NULL);
 }
 
-/*½ÓÊÕEventÊı¾İ*/
+/*æ¥æ”¶Eventæ•°æ®*/
 cqhttp_err recv_event(void)
 {
 	char func[20] = "recv_event";
+
+	int recv_max = 1000, count;
 	char* msg;
-	if (!event_response)				//Èç¹ûÎ´ÉùÃ÷ÏûÏ¢ÏìÓ¦º¯Êı
+	if (!event_response)				//å¦‚æœæœªå£°æ˜æ¶ˆæ¯å“åº”å‡½æ•°
 		return set_cqhttp_err(NULLError, func, 1, "event_response");
 	while (1)
 	{
+		count = 0;
 		msg = (char*)malloc(2048);
 		if (!msg)
 			return set_cqhttp_err(NULLError, func, 0, NULL);
 		memset(msg, 0, 2048);
-		while (recv(client, msg, 2048, 0) < 0);
+		while (recv(client, msg, 2048, 0) < 0)
+		{
+			count++;
+			if (count > recv_max)
+			{
+				closesocket(client);
+				closesocket(serverSocket);
+				return set_cqhttp_err(ConnectionError, func, 1, "å½“å‰è¿æ¥å·²å¼‚å¸¸ä¸­æ–­");
+			}
+		}
 		if (send(client, Event_Response, strlen(Event_Response), 0) < 0)
-			return set_cqhttp_err(NetworkIOError, func, 1, "·¢ËÍhttpÏìÓ¦Í·Ê§°Ü");
-		_beginthread(event_response, 0, (void*)msg);	//¿ªÊ¼¼ìË÷ÊÂ¼ş
+			return set_cqhttp_err(NetworkIOError, func, 1, "å‘é€httpå“åº”å¤´å¤±è´¥");
+		_beginthread(event_response, 0, (void*)msg);	//å¼€å§‹æ£€ç´¢äº‹ä»¶
 	}
 }
 
 ////////////
-/*ÊÂ¼ş½âÎö*/
+/*äº‹ä»¶è§£æ*/
 ////////////
 
-//ÈºÏûÏ¢ÊÂ¼ş
+//ç¾¤æ¶ˆæ¯äº‹ä»¶
 group_message_event_data group_message_event_analysis(char* data)
 {
 	char func[70] = "group_message_event_analysis";
+
 	char anonymous[200] = { '\0' };
 	char sender[300] = { '\0' };
 	group_message_event_data ge_data;
@@ -125,8 +131,8 @@ group_message_event_data group_message_event_analysis(char* data)
 				ge_data.sub_type,
 				&ge_data.time,
 				&ge_data.user_id) == -1)
-				cqhttp_err_out(set_cqhttp_err(StringError, func, 1, "sscanf_1"));
-	if (strcmp(anonymous, "null"))		//Èç¹ûanonymous×Ö¶Î²»ÊÇnull
+			cqhttp_err_out(set_cqhttp_err(StringError, func, 1, "sscanf_1"));
+	if (strcmp(anonymous, "null"))		//å¦‚æœanonymouså­—æ®µä¸æ˜¯null
 	{
 		if (sscanf(anonymous, GROUP_MESSAGE_EVENT_FORM_ANOYMOUS,
 					ge_data.anonymous.flag,
@@ -137,7 +143,7 @@ group_message_event_data group_message_event_analysis(char* data)
 	return ge_data;
 }
 
-//Ë½ÁÄÊÂ¼ş
+//ç§èŠäº‹ä»¶
 private_message_event_data private_message_event_analysis(char* data)
 {
 	char func[70] = "private_message_event_analysis";
@@ -186,13 +192,35 @@ private_message_event_data private_message_event_analysis(char* data)
 			cqhttp_err_out(set_cqhttp_err(StringError, func, 1, "sscanf_2"));
 	}
 	else
-		cqhttp_err_out(set_cqhttp_err(StringError, func, 1, "×Ö·û´®Æ¥ÅäÊ§°Ü"));
+		cqhttp_err_out(set_cqhttp_err(StringError, func, 1, "å­—ç¬¦ä¸²åŒ¹é…å¤±è´¥"));
 
 	return pe_data;
 }
 
-/*ÊÂ¼şÏûÏ¢¼ìË÷*/
-//ÉÏ±¨ÀàĞÍ¼ìË÷
+//ç¾¤æ¶ˆæ¯æ’¤å›äº‹ä»¶
+group_recall_notice_data group_recall_notice_analysis(char* data)
+{
+	char func[70] = "group_recall_notice_analysis";
+
+	group_recall_notice_data gr_data;
+	memset(&gr_data, 0, sizeof(gr_data));
+
+	if(sscanf(data, GROUP_RECALL_NOTICE_EVENT_FORM,
+		&gr_data.group_id,
+		&gr_data.message_id,
+		gr_data.message,
+		gr_data.notice_type,
+		&gr_data.operator_id,
+		gr_data.post_type,
+		&gr_data.self_id,
+		&gr_data.time,
+		&gr_data.user_id) == -1)
+		cqhttp_err_out(set_cqhttp_err(StringError, func, 1, "sscanf"));
+	return gr_data;
+}
+
+/*äº‹ä»¶æ¶ˆæ¯æ£€ç´¢*/
+//ä¸ŠæŠ¥ç±»å‹æ£€ç´¢
 event_type event_type_switch(const char* data)
 {
 	char func[70] = "event_type_switch";
@@ -203,11 +231,15 @@ event_type event_type_switch(const char* data)
 		return notice_event;
 	else if (strstr(data, "\"post_type\":\"meta_event\""))
 		return meta_event;
+	else if (strstr(data, "\"post_type\":\"request\""))
+		return request_event;
+	else if (strstr(data, "\"post_type\":\"essence\""))
+		return essence_event;
 	else
 		return unknow_event;
 }
 
-//ÏûÏ¢ÀàĞÍÅĞ¶Ï
+//æ¶ˆæ¯ç±»å‹æ£€ç´¢
 message_type message_type_switch(const char* data)
 {
 	char func[70] = "message_type_switch";
@@ -218,4 +250,16 @@ message_type message_type_switch(const char* data)
 		return group_message;
 	else
 		return unknow_message;
+}
+
+//é€šçŸ¥ç±»å‹æ£€ç´¢
+notice_type notice_type_switch(char* data)
+{
+	char func[70] = "notice_type_switch";
+
+	if (strstr(data, "\"notice_type\":\"group_recall\""))
+		return group_recall_notice;
+	else if (strstr(data, "\"notice_type\":\"friend_recall\""))
+		return friend_recall_notice;
+	else return unknow_notice;
 }

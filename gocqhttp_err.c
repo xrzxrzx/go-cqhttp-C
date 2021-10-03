@@ -1,9 +1,9 @@
-#include"gocqhttp_err.h"
+ï»¿#include"gocqhttp_err.h"
 #include<string.h>
 #include<stdio.h>
 
-/*ÉèÖÃcqhttp_err*/
-cqhttp_err set_cqhttp_err(cqhttp_err_list list, char function[70], int flag, const char instructions[100])
+/*è®¾ç½®cqhttp_err*/
+cqhttp_err set_cqhttp_err(cqhttp_err_list list, const char function[70], int flag, char instructions[100])
 {
 	cqhttp_err err;
 	memset(&err, 0, sizeof(err));
@@ -15,7 +15,7 @@ cqhttp_err set_cqhttp_err(cqhttp_err_list list, char function[70], int flag, con
 	return err;
 }
 
-/*Êä³ö´íÎó*/
+/*è¾“å‡ºé”™è¯¯*/
 cqhttp_err_list cqhttp_err_out(cqhttp_err err)
 {
 	switch (err.error)
@@ -49,6 +49,9 @@ cqhttp_err_list cqhttp_err_out(cqhttp_err err)
 			break;
 		case StringError:
 			printf("[ERROR]String operation error ");
+			break;
+		case NotFound:
+			printf("[ERROR]Not found the file ");
 			break;
 	}
 	printf("| function: \"%s\" ", err.function);
