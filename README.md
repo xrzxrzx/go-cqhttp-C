@@ -1,5 +1,4 @@
 # go-cqhttp-C
-###### 编码原因目前还不支持使用中文，大概国庆会能够完善好
 * 这是一个基于[go-cqhttp](https://github.com/Mrs4s/go-cqhttp)的C语言QQ机器人开源框架，大致可分为 API操作、
 Event消息接收解析以及错误反馈三个部分，但只能在windows系统上使用。
 > 制作这个的初衷是为了方便开发者能更加快捷的使用C语言制作出QQ机器人，
