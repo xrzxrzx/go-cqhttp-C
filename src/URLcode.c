@@ -126,13 +126,3 @@ char* UTF8toGBK(char* strUtf8)
     free(strGbk);
     return strTemp;
 }
-
-/*快捷编码*/
-char* encode(char* str)
-{
-    char* t1, t2;
-    t1 = GBKtoUTF8(str);
-    t2 = urlencode(t1);
-    free(t1);
-    return t2;
-}
