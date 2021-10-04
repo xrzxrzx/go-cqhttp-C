@@ -1,8 +1,7 @@
-﻿#include"URLcode.h"
+#include"URLcode.h"
 #include"gocqhttp_API.h"
 #include"gocqhttp_Event.h"
 #include"gocqhttp_err.h"
-#include"robot.h"
 #include<stdio.h>
 #include<stdlib.h>
 #include<winsock2.h>
