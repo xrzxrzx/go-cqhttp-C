@@ -208,7 +208,6 @@ group_recall_notice_data group_recall_notice_analysis(char* data)
 	if(sscanf(data, GROUP_RECALL_NOTICE_EVENT_FORM,
 		&gr_data.group_id,
 		&gr_data.message_id,
-		gr_data.message,
 		gr_data.notice_type,
 		&gr_data.operator_id,
 		gr_data.post_type,

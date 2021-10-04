@@ -120,7 +120,7 @@ typedef struct
 	char message[1024];			//消息类容
 }group_recall_notice_data;
 
-#define GROUP_RECALL_NOTICE_EVENT_FORM	"%*[^{]{\"group_id\":%lu,\"message_id\":%d,\"message\":\"%[^\"]\",\"notice_type\":\"%[^\"]\",\"operator_id\":%lu,\"post_type\":\"%[^\"]\",\"self_id\":%lu,\"time\":%lu,\"user_id\":%lu}"
+#define GROUP_RECALL_NOTICE_EVENT_FORM	"%*[^{]{\"group_id\":%lu,\"message_id\":%d,\"notice_type\":\"%[^\"]\",\"operator_id\":%lu,\"post_type\":\"%[^\"]\",\"self_id\":%lu,\"time\":%lu,\"user_id\":%lu}"
 
 group_recall_notice_data group_recall_notice_analysis(char* data);			//解析事件
 
