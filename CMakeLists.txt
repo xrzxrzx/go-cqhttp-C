@@ -9,6 +9,5 @@ set(SOURCE
 )
 
 add_library(gocqhttplib STATIC ${SOURCE})
-target_link_directories(gocqhttplib PUBLIC "src/")
 add_executable(gocqhttp "src/main.c")
 target_link_libraries(gocqhttp PRIVATE gocqhttplib)
