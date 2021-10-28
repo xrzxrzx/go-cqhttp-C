@@ -1,2 +1,6 @@
+# cmake
 build/
+# visual studio code
 .vscode/
+# Visual studio
+out/
