@@ -91,8 +91,6 @@ cqhttp_err send_group_msg(send_group_msg_data* data)
 {
 	char func[70] = "send_group_msg";
 
-	memset(data, 0, sizeof(data));
-
 	if ((server = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 		return set_cqhttp_err(SocketInitError, func, 0, NULL);
 	if (connect(server, (SOCKADDR*)&server_addr, sizeof(server_addr)) < 0)
@@ -146,8 +144,6 @@ cqhttp_err get_msg(get_msg_data* data)
 {
 	char func[70] = "get_msg";
 
-	memset(data, 0, sizeof(data));
-
 	if ((server = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 		return set_cqhttp_err(SocketInitError, func, 0, NULL);
 	if (connect(server, (SOCKADDR*)&server_addr, sizeof(server_addr)) < 0)
@@ -200,8 +196,6 @@ cqhttp_err delete_msg(delete_msg_data* data)
 {
 	char func[70] = "delete_msg";
 
-	memset(data, 0, sizeof(data));
-
 	if ((server = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 		return set_cqhttp_err(SocketInitError, func, 0, NULL);
 	if (connect(server, (SOCKADDR*)&server_addr, sizeof(server_addr)) < 0)
@@ -245,8 +239,6 @@ get_group_member_info_data New_get_group_member_info(unsigned long group_id, uns
 cqhttp_err get_group_member_info(get_group_member_info_data* data)
 {
 	char func[70] = "get_group_member_info";
-
-	memset(data, 0, sizeof(data));
 
 	if ((server = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 		return set_cqhttp_err(SocketInitError, func, 0, NULL);
