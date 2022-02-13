@@ -1,6 +1,14 @@
 ﻿#pragma once
 #include"gocqhttp_err.h"
-#pragma comment(linker, "/STACK:100000")
+
+#ifndef _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
+#ifndef ZERO(X)
+#define ZERO(X)		memset(X,0,sizeof(X))
+#endif // !ZERO(X)
+
 
 #define RECV_MAX		100			//最大接收次数
 
@@ -101,7 +109,7 @@ send_group_msg_data New_send_group_msg(
 ////////////
 
 #define API_GET_MSG_FORM			"GET /get_msg?message_id=%d HTTP/1.1\r\nHost: 127.0.0.1:5700\r\nConnection: keep-alive\r\n\r\n"
-#define API_GET_MSG_RECV			"%*[^{]{\"data\":{\"group\":%[^,],\"group_id\":%lu,\"message\":\"%[^\"]\",\"message_id\":%d,\"message_seq\":%d,\"message_type\":\"%[^\"]\",\"raw_message\":\"%[^\"]\",\"real_id\":%d,\"sender\":{\"nickname\":\"%[^\"]\",\"user_id\":%lu},\"time\":%d},\"retcode\":%d,\"status\":\"%[^\"]\"}"
+#define API_GET_MSG_RECV			"%*[^{]{\"data\":{\"group\":%[^,],\"group_id\":%lu,\"message\":\"%[^\"]\",\"message_id\":%d,\"message_id_v2\":\"%[^\"]\",\"message_seq\":%d,\"message_type\":\"%[^\"]\",\"real_id\":%d,\"sender\":{\"nickname\":\"%[^\"]\",\"user_id\":%lu},\"time\":%d},\"retcode\":%d,\"status\":\"%[^\"]\"}"
 
 typedef struct
 {
@@ -112,11 +120,12 @@ typedef struct
 {
 	struct
 	{
-		char group[10];
+		char group[10];				//我也不清楚，大概也用不到
 		unsigned long group_id;		//群号
 		int message_id;				//消息 ID
+		char message_id_v2[50];		//消息 ID 2.0版
 		int real_id;				//真实 ID
-		int message_seq;
+		int message_seq;			//我也不知道是干啥的
 		char message_type[20];		//消息类型
 		struct
 		{
@@ -125,7 +134,6 @@ typedef struct
 		}sender;		//发送者
 		int time;					//发送时间
 		char message[1024];			//消息类容
-		char raw_message[1024];		//原始消息内容
 	}data;			//返回数据
 	int retcode;					//返回码
 	char status[10];				//状态

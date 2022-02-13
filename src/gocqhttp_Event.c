@@ -1,5 +1,6 @@
 ﻿#include "gocqhttp_Event.h"
 #include "gocqhttp_err.h"
+#include"AnaJSON.h"
 #include"URLcode.h"
 #include<process.h>
 #include<stdio.h>
@@ -30,8 +31,6 @@ void (*event_response)(void* data);				//事件类型响应函数
 /*创建Event服务端*/
 cqhttp_err init_gocqhttpEvent(const char* ip, const int port, void(*response)(void* data))
 {
-	char func[70] = "init_gocqhttpEvent";
-
 	if (!response)
 		return set_cqhttp_err(NULLError, func, 1, "\"response\"是空指针");
 
@@ -75,8 +74,6 @@ cqhttp_err init_gocqhttpEvent(const char* ip, const int port, void(*response)(vo
 /*接收Event数据*/
 cqhttp_err recv_event(void)
 {
-	char func[20] = "recv_event";
-
 	int recv_max = 1000, count;
 	char* msg;
 	if (!event_response)				//如果未声明消息响应函数
@@ -111,66 +108,134 @@ cqhttp_err recv_event(void)
 //群消息事件
 group_message_event_data group_message_event_analysis(char* data)
 {
-	char func[70] = "group_message_event_analysis";
-
-	char anonymous[200] = { '\0' };
-	char sender[300] = { '\0' };
-	char tstr[1024];
-	char* temp;
+	char rmsg_json[1024] = { '\0' };
+	char tn[20] = { '\0' };
+	int index = 0, i = 0;
+	char tstr[1024], tname[50], tna[50];
+	char* t1, *t2, *t3;
+	JSONData* json, anonymous, sender;
 	group_message_event_data ge_data;
 	memset(&ge_data, 0, sizeof(ge_data));
-	if (sscanf(data, GROUP_MESSAGE_EVENT_FORM,
-				anonymous,
-				&ge_data.font,
-				&ge_data.group_id,
-				tstr,
-				&ge_data.message_id,
-				&ge_data.message_seq,
-				ge_data.message_type,
-				ge_data.post_type,
-				ge_data.raw_message,
-				&ge_data.self_id,
-				sender,
-				ge_data.sub_type,
-				&ge_data.time,
-				&ge_data.user_id) == -1)
-			cqhttp_err_out(set_cqhttp_err(StringError, func, 1, "sscanf_1"));
-	temp = UTF8toGBK(tstr);
-	strcpy(ge_data.message, temp);
-	free(temp);
-	if (strcmp(anonymous, "null"))		//如果anonymous字段不是null
+
+	while (data[index++] != '{');
+	index--;
+	while (data[index] != '\0')	rmsg_json[i++] = data[index++];
+	
+	json = StrtoJSON(rmsg_json);
+	//anonymous--
+	ZERO(tn);
+	getJSONVal(json, "anonymous", tn, &anonymous);
+	//如果拥有anonymous字段
+	if (strcmp(tn, "null"))
 	{
-		if (sscanf(anonymous, GROUP_MESSAGE_EVENT_FORM_ANOYMOUS,
-					ge_data.anonymous.flag,
-					&ge_data.anonymous.id,
-					ge_data.anonymous.name) == -1)
-			cqhttp_err_out(set_cqhttp_err(StringError, func, 1, "sscanf_2"));
+		//flag
+		getJSONVal(&anonymous, "flag", ge_data.anonymous.flag, NULL);
+		//id
+		ZERO(tn);
+		getJSONVal(&anonymous, "id", tn, NULL);
+		sscanf(tn, "%lu", &ge_data.anonymous.id);
+		//name
+		getJSONVal(&anonymous, "name", tna, NULL);
+		t3 = UTF8toGBK(tna);
+		strcpy(ge_data.anonymous.name, t3);
+		free(t3);
 	}
+	else
+		ge_data.anonymous.id = 0;
+	//front
+	ZERO(tn);
+	getJSONVal(&anonymous, "font", tn, NULL);
+	sscanf(tn, "%d", &ge_data.font);
+	//group_id
+	ZERO(tn);
+	getJSONVal(json, "group_id", tn, NULL);
+	sscanf(tn, "%lu", &ge_data.group_id);
+	//message
+	getJSONVal(json, "message", tstr, NULL);
+	t1 = UTF8toGBK(tstr);
+	strcpy(ge_data.message, t1);
+	free(t1);
+	//message_id
+	ZERO(tn);
+	getJSONVal(json, "message_id", tn, NULL);
+	sscanf(tn, "%d", &ge_data.message_id);
+	//message_seq
+	ZERO(tn);
+	getJSONVal(json, "message_seq", tn, NULL);
+	sscanf(tn, "%d", &ge_data.message_seq);
+	//message_type
+	getJSONVal(json, "message_type", ge_data.message_type, NULL);
+	//post_type
+	getJSONVal(json, "post_type", ge_data.post_type, NULL);
+	//raw_message
+	getJSONVal(json, "raw_message", ge_data.raw_message, NULL);
+	//self_id
+	ZERO(tn);
+	getJSONVal(json, "self_id", tn, NULL);
+	sscanf(tn, "%lu", &ge_data.self_id);
+	//sender--
+	getJSONVal(json, "sender", NULL, &sender);
+	//age
+	ZERO(tn);
+	getJSONVal(&sender, "age", tn, NULL);
+	sscanf(tn, "%d", &ge_data.sender.age);
+	//area
+	getJSONVal(&sender, "area", ge_data.sender.area, NULL);
+	//card
+	getJSONVal(&sender, "card", ge_data.sender.card, NULL);
+	//level
+	getJSONVal(&sender, "level", ge_data.sender.level, NULL);
+	//nickname
+	getJSONVal(&sender, "nickname", tname, NULL);
+	t2 = UTF8toGBK(tname);
+	strcpy(ge_data.sender.nickname, t2);
+	free(t2);
+	//role
+	getJSONVal(&sender, "role", ge_data.sender.role, NULL);
+	//sex
+	getJSONVal(&sender, "sex", ge_data.sender.sex, NULL);
+	//title
+	getJSONVal(&sender, "title", ge_data.sender.title, NULL);
+	//user_id
+	ZERO(tn);
+	getJSONVal(&sender, "user_id", tn, NULL);
+	sscanf(tn, "%lu", &ge_data.sender.user_id);
+	//sub_type
+	getJSONVal(json, "sub_type", ge_data.sub_type, NULL);
+	//time
+	ZERO(tn);
+	getJSONVal(json, "time", tn, NULL);
+	sscanf(tn, "%lu", &ge_data.time);
+	//user_id
+	ZERO(tn);
+	getJSONVal(json, "user_id", tn, NULL);
+	sscanf(tn, "%lu", &ge_data.user_id);
+
+	FreeJSON(json);
+
 	return ge_data;
 }
 
 //私聊事件
 private_message_event_data private_message_event_analysis(char* data)
 {
-	char func[70] = "private_message_event_analysis";
-
-	char tstr[1024];
-	char* temp;
+	char tstr[1024], tname[50];
+	char* t1, *t2;
 	private_message_event_data pe_data;
 	memset(&pe_data, 0, sizeof(pe_data));
 
 	if (strstr(data, "\"sub_type\":\"friend\""))
 	{
-		if (sscanf(data, PRIVATE_MESSAGE_EVENT_FORM_1,
+		if (sscanf(data, PRIVATE_MESSAGE_EVENT_FORM,
 					&pe_data.font,
-					pe_data.message,
+					tstr,
 					&pe_data.message_id,
 					pe_data.message_type,
 					pe_data.post_type,
 					pe_data.raw_message,
 					&pe_data.self_id,
 					&pe_data.sender.age,
-					pe_data.sender.nickname,
+					tname,
 					pe_data.sender.sex,
 					&pe_data.sender.user_id,
 					pe_data.sub_type,
@@ -179,7 +244,7 @@ private_message_event_data private_message_event_analysis(char* data)
 					&pe_data.user_id) == -1)
 			cqhttp_err_out(set_cqhttp_err(StringError, func, 1, "sscanf_1"));
 	}
-	else if (strstr(data, "\"sub_type\":\"group\""))
+	/*else if (strstr(data, "\"sub_type\":\"group\""))
 	{
 		if (sscanf(data, PRIVATE_MESSAGE_EVENT_FORM_2,
 					&pe_data.font,
@@ -199,12 +264,15 @@ private_message_event_data private_message_event_analysis(char* data)
 					&pe_data.time,
 					&pe_data.user_id) == -1)
 			cqhttp_err_out(set_cqhttp_err(StringError, func, 1, "sscanf_2"));
-	}
+	}*/
 	else
 		cqhttp_err_out(set_cqhttp_err(StringError, func, 1, "字符串匹配失败"));
-	temp = UTF8toGBK(tstr);
-	strcpy(pe_data.message, temp);
-	free(temp);
+	t1 = UTF8toGBK(tstr);
+	t2 = UTF8toGBK(tname);
+	strcpy(pe_data.message, t1);
+	strcpy(pe_data.sender.nickname, t2);
+	free(t1);
+	free(t2);
 
 	return pe_data;
 }
@@ -212,8 +280,6 @@ private_message_event_data private_message_event_analysis(char* data)
 //群消息撤回事件
 group_recall_notice_data group_recall_notice_analysis(char* data)
 {
-	char func[70] = "group_recall_notice_analysis";
-
 	group_recall_notice_data gr_data;
 	memset(&gr_data, 0, sizeof(gr_data));
 
@@ -234,8 +300,6 @@ group_recall_notice_data group_recall_notice_analysis(char* data)
 //上报类型检索
 event_type event_type_switch(const char* data)
 {
-	char func[70] = "event_type_switch";
-	
 	if (strstr(data, "\"post_type\":\"message\""))
 		return message_event;
 	else if (strstr(data, "\"post_type\":\"notice\""))
@@ -253,8 +317,6 @@ event_type event_type_switch(const char* data)
 //消息类型检索
 message_type message_type_switch(const char* data)
 {
-	char func[70] = "message_type_switch";
-
 	if (strstr(data, "\"message_type\":\"private\""))
 		return private_message;
 	else if (strstr(data, "\"message_type\":\"group\""))
@@ -266,8 +328,6 @@ message_type message_type_switch(const char* data)
 //通知类型检索
 notice_type notice_type_switch(char* data)
 {
-	char func[70] = "notice_type_switch";
-
 	if (strstr(data, "\"notice_type\":\"group_recall\""))
 		return group_recall_notice;
 	else if (strstr(data, "\"notice_type\":\"friend_recall\""))

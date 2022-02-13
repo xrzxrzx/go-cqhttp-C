@@ -1,6 +1,14 @@
 ﻿#pragma once
 #include"gocqhttp_err.h"
 
+#ifndef _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
+#ifndef ZERO(X)
+#define ZERO(X)		memset(X,0,sizeof(X))
+#endif // !ZERO(X)
+
 #define ACCEPT_COUNT_MAX	20
 #define Event_Response		"HTTP/1.1 204 OK\r\n\r\n"
 
@@ -49,15 +57,14 @@ typedef struct
 	struct
 	{
 		unsigned long user_id;	//发送者QQ号
-		unsigned long group_id;	//群号
 		char nickname[50];		//昵称
 		char sex[10];			//性别
 		int age;				//年龄
 	}sender;		//发送人信息
 }private_message_event_data;
 
-#define PRIVATE_MESSAGE_EVENT_FORM_1	"%*[^{]{\"font\":%d,\"message\":\"%[^\"]\",\"message_id\":%d,\"message_type\":\"%[^\"]\",\"post_type\":\"%[^\"]\",\"raw_message\":\"%[^\"]\",\"self_id\":%lu,\"sender\":{\"age\":%d,\"nickname\":\"%[^\"]\",\"sex\":\"%[^\"]\",\"user_id\":%lu},\"sub_type\":\"%[^\"]\",\"target_id\":%ld,\"time\":%lu,\"user_id\":%lu}"
-#define PRIVATE_MESSAGE_EVENT_FORM_2	"%*[^{]{\"font\":%d,\"message\":\"%[^\"]\",\"message_id\":%d,\"message_type\":\"%[^\"]\",\"post_type\":\"%[^\"]\",\"raw_message\":\"%[^\"]\",\"self_id\":%lu,\"sender\":{\"age\":%d,\"group_id\":%lu,\"nickname\":\"%[^\"]\",\"sex\":\"%[^\"]\",\"user_id\":%lu},\"sub_type\":\"%[^\"]\",\"temp_sourc\":%d\"time\":%lu,\"user_id\":%lu}"
+#define PRIVATE_MESSAGE_EVENT_FORM	"%*[^{]{\"font\":%d,\"message\":\"%[^\"]\",\"message_id\":%d,\"message_type\":\"%[^\"]\",\"post_type\":\"%[^\"]\",\"raw_message\":\"%[^\"]\",\"self_id\":%lu,\"sender\":{\"age\":%d,\"nickname\":\"%[^\"]\",\"sex\":\"%[^\"]\",\"user_id\":%lu},\"sub_type\":\"%[^\"]\",\"target_id\":%ld,\"time\":%lu,\"user_id\":%lu}"
+//#define PRIVATE_MESSAGE_EVENT_FORM_TEMP	"%*[^{]{\"font\":%d,\"message\":\"%[^\"]\",\"message_id\":%d,\"message_type\":\"%[^\"]\",\"post_type\":\"%[^\"]\",\"raw_message\":\"%[^\"]\",\"self_id\":%lu,\"sender\":{\"age\":%d,\"group_id\":%lu,\"nickname\":\"%[^\"]\",\"sex\":\"%[^\"]\",\"user_id\":%lu},\"sub_type\":\"%[^\"]\",\"temp_sourc\":%d\"time\":%lu,\"user_id\":%lu}"
 
 private_message_event_data private_message_event_analysis(char* data);		//解析事件
 
@@ -98,8 +105,7 @@ typedef struct
 	}sender;		//发送人信息
 }group_message_event_data;
 
-#define GROUP_MESSAGE_EVENT_FORM		"%*[^{]{\"anonymous\":%[^,],\"font\":%d,\"group_id\":%lu,\"message\":\"%[^\"]\",\"message_id\":%d,\"message_seq\":%d,\"message_type\":\"%[^\"]\",\"post_type\":\"%[^\"]\",\"raw_message\":\"%[^\"]\",\"self_id\":%lu,\"sender\":{%[^}]},\"sub_type\":\"%[^\"]\",\"time\":%lu,\"user_id\":%lu}"
-#define GROUP_MESSAGE_EVENT_CQ_FORM		"%*[^{]{\"anonymous\":%[^,],\"font\":%d,\"group_id\":%lu,\"message\":\"%[^\"]\",\"message_id\":%d,\"message_seq\":%d,\"message_type\":\"%[^\"]\",\"post_type\":\"%[^\"]\",\"raw_message\":\"[%[^]]]\",\"self_id\":%lu,\"sender\":{%[^}]},\"sub_type\":\"%[^\"]\",\"time\":%lu,\"user_id\":%lu}"
+#define GROUP_MESSAGE_EVENT_FORM		"%*[^{]{\"anonymous\":%[^,],\"font\":%d,\"group_id\":%lu,\"message\":\"%[^\"]\",\"message_id\":%d,\"message_seq\":%d,\"message_type\":\"%[^\"]\",\"post_type\":\"%[^\"]\",\"raw_message\":\"%[^\"]\",\"self_id\":%lu,\"sender\":{\"age\":%d,\"area\":%[^,],\"card\":\"%[^\"]\",\"level\":%[^,],\"nickname\":\"%[^\"]\",\"role\":\"%[^\"]\",\"sex\":\"%[^\"]\",\"title\":%[^,],\"user_id\":%lu},\"sub_type\":\"%[^\"]\",\"time\":%lu,\"user_id\":%lu}"
 #define GROUP_MESSAGE_EVENT_FORM_ANOYMOUS	"{\"flag\":\"%[^\"]\",\"id\":%lu,\"name\":\"%[^\"]\"}"
 
 group_message_event_data group_message_event_analysis(char* data);			//解析事件

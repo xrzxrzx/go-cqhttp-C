@@ -12,7 +12,8 @@ typedef enum
 	NetworkIOError,			//网络IO错误
 	NULLError,				//空指针异常
 	NotFound,				//文件未找到
-	StringError				//字符串操作失败
+	StringError,			//字符串操作失败
+	Win32Error				//调用win api错误
 }cqhttp_err_list;	//错误类型
 
 typedef struct
@@ -35,3 +36,7 @@ cqhttp_err set_cqhttp_err(
 cqhttp_err_list cqhttp_err_out(
 	cqhttp_err err		//错误信息
 );
+
+#ifndef func
+#define func __FUNCTION__
+#endif

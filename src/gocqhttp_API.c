@@ -1,5 +1,7 @@
 ﻿#include"gocqhttp_API.h"
 #include"URLcode.h"
+#include"gocqhttp_err.h"
+#include"AnaJSON.h"
 #include<process.h>
 #include<winsock2.h>
 #include<windows.h>
@@ -28,8 +30,6 @@ send_private_msg_data New_send_private_msg(unsigned long user_id, unsigned long 
 
 cqhttp_err send_private_msg(send_private_msg_data* data)
 {
-	char func[70] = "send_private_msg";
-
 	if ((server = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 		return set_cqhttp_err(SocketInitError, func, 0, NULL);
 	if (connect(server, (SOCKADDR*)&server_addr, sizeof(server_addr)) < 0)
@@ -52,17 +52,14 @@ cqhttp_err send_private_msg(send_private_msg_data* data)
 	}
 
 	memset(data, 0, sizeof(send_private_msg_data));
-	while (recv(server, rmsg, sizeof(rmsg), 0) < 0)
+	int count = 0;
+	while (recv(server, rmsg, sizeof(rmsg), 0) < 0)		//接收
 	{
-		int count = 0;		//接收次数
-		while (recv(server, rmsg, sizeof(rmsg), 0) < 0)		//接收
+		count++;
+		if (count > RECV_MAX)
 		{
-			count++;
-			if (count > RECV_MAX)
-			{
-				closesocket(server);
-				return set_cqhttp_err(ConnectionError, func, 1, "当前连接已异常中断");
-			}
+			closesocket(server);
+			return set_cqhttp_err(ConnectionError, func, 1, "当前连接已异常中断");
 		}
 	}
 	if(sscanf(rmsg, API_SEND_PRIVATE_MSG_RECV,
@@ -89,21 +86,26 @@ send_group_msg_data New_send_group_msg(unsigned long group_id, char message[1024
 
 cqhttp_err send_group_msg(send_group_msg_data* data)
 {
-	char func[70] = "send_group_msg";
-
 	if ((server = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 		return set_cqhttp_err(SocketInitError, func, 0, NULL);
 	if (connect(server, (SOCKADDR*)&server_addr, sizeof(server_addr)) < 0)
 		return set_cqhttp_err(ConnectionError, func, 0, NULL);
 
 	char rmsg[1024] = { '\0' };			//收包
+	char rmsg_json[1024] = { '\0' };
 	char smsg[1024] = { '\0' };			//发包
+	int index = 0, i = 0;
+	char* temp;
+	char tn[20];
+
+	temp = urlencode(data->send_msg.message);
 
 	//构建发包
 	sprintf(smsg, API_SEND_GROUP_MSG_FORM,
 			data->send_msg.group_id,
-			data->send_msg.message,
+			temp,
 			data->send_msg.auto_escape);
+	free(temp);
 	int isend = send(server, smsg, strlen(smsg), 0);	//发送
 	if (isend < 0)
 	{
@@ -122,11 +124,26 @@ cqhttp_err send_group_msg(send_group_msg_data* data)
 			return set_cqhttp_err(ConnectionError, func, 1, "当前连接已异常中断");
 		}
 	}
-	if (sscanf(rmsg, API_SEND_GROUP_MSG_RECV,
-		&data->recv_msg.data.message_id,
-		&data->recv_msg.retcode,
-		data->recv_msg.status) == -1)
-		cqhttp_err_out(set_cqhttp_err(StringError, func, 1, "sscanf"));
+	while (rmsg[index++] != '{');
+	index--;
+	while (rmsg[index] != '\0')	rmsg_json[i++] = rmsg[index++];
+
+	JSONData* json, ch;
+	json = StrtoJSON(rmsg_json);
+	//retcode
+	ZERO(tn);
+	getJSONVal(json, "retcode", tn, &ch);
+	sscanf(tn, "%d", &data->recv_msg.retcode);
+	//status
+	getJSONVal(json, "status", data->recv_msg.status, &ch);
+	//data--
+	getJSONVal(json, "data", tn, &ch);
+	//message_id
+	ZERO(tn);
+	getJSONVal(&ch, "message_id", tn, NULL);
+	sscanf(tn, "%d", &data->recv_msg.data.message_id);
+
+	FreeJSON(json);
 
 	closesocket(server);
 	return set_cqhttp_err(None, func, 0, NULL);
@@ -142,15 +159,19 @@ get_msg_data New_get_msg(int message_id)
 
 cqhttp_err get_msg(get_msg_data* data)
 {
-	char func[70] = "get_msg";
-
 	if ((server = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 		return set_cqhttp_err(SocketInitError, func, 0, NULL);
 	if (connect(server, (SOCKADDR*)&server_addr, sizeof(server_addr)) < 0)
 		return set_cqhttp_err(ConnectionError, func, 0, NULL);
 
+	int index = 0, i = 0;
 	char rmsg[1024] = { '\0' };							//收包
+	char rmsg_json[1024] = { '\0' };
 	char smsg[1024] = { '\0' };							//发包
+	char temp1[1024] = { '\0' };
+	char temp2[100] = { '\0' };
+	char tn[20];
+	char* t1, *t2;
 
 	//构建发包
 	sprintf(smsg, API_GET_MSG_FORM,
@@ -164,21 +185,64 @@ cqhttp_err get_msg(get_msg_data* data)
 
 	memset(data, 0, sizeof(delete_msg_data));
 	while (recv(server, rmsg, sizeof(rmsg), 0) < 0);	//接收
-	if (sscanf(rmsg, API_GET_MSG_RECV,
-		data->recv_msg.data.group,
-		&data->recv_msg.data.group_id,
-		data->recv_msg.data.message,
-		&data->recv_msg.data.message_id,
-		&data->recv_msg.data.message_seq,
-		data->recv_msg.data.message_type,
-		data->recv_msg.data.raw_message,
-		&data->recv_msg.data.real_id,
-		data->recv_msg.data.sender.nickname,
-		&data->recv_msg.data.sender.user_id,
-		&data->recv_msg.data.time,
-		&data->recv_msg.retcode,
-		data->recv_msg.status) == -1)
-		cqhttp_err_out(set_cqhttp_err(StringError, func, 1, "sscanf"));
+	while (rmsg[index++] != '{');
+	index--;
+	while (rmsg[index] != '\0')	rmsg_json[i++] = rmsg[index++];
+
+	JSONData* json, ch1, ch2;
+	json = StrtoJSON(rmsg_json);
+	//retcode
+	ZERO(tn);
+	getJSONVal(json, "retcode", tn, &ch1);
+	sscanf(tn, "%d", &data->recv_msg.retcode);
+	//status
+	getJSONVal(json, "status", data->recv_msg.status, &ch1);
+	//data--
+	getJSONVal(json, "data", tn, &ch1);
+	//group
+	int f = getJSONVal(&ch1, "group", data->recv_msg.data.group, &ch2);
+	//group_id
+	ZERO(tn);
+	getJSONVal(&ch1, "group_id", tn, &ch2);
+	sscanf(tn, "%lu", &data->recv_msg.data.message_id);
+	//message
+	getJSONVal(&ch1, "message", temp1, &ch2);
+	t1 = UTF8toGBK(temp1);
+	strcpy(data->recv_msg.data.message, t1);
+	free(t1);
+	//message_id
+	ZERO(tn);
+	getJSONVal(&ch1, "message_id", tn, &ch2);
+	sscanf(tn, "%d", &data->recv_msg.data.message_id);
+	//message_id_v2
+	getJSONVal(&ch1, "message_id_v2", data->recv_msg.data.message_id_v2, &ch2);
+	//message_seq
+	ZERO(tn);
+	getJSONVal(&ch1, "message_seq", tn, &ch2);
+	sscanf(tn, "%d", &data->recv_msg.data.message_seq);
+	//message_type
+	getJSONVal(&ch1, "message_type", data->recv_msg.data.message_type, &ch2);
+	//real_id
+	ZERO(tn);
+	getJSONVal(&ch1, "real_id", tn, &ch2);
+	sscanf(tn, "%d", &data->recv_msg.data.real_id);
+	//time
+	ZERO(tn);
+	getJSONVal(&ch1, "time", tn, &ch2);
+	sscanf(tn, "%d", &data->recv_msg.data.time);
+	//sender--
+	getJSONVal(&ch1, "sender", tn, &ch2);
+	//nickname
+	getJSONVal(&ch2, "nickname", temp2, NULL);
+	t2 = UTF8toGBK(temp2);
+	strcpy(data->recv_msg.data.sender.nickname, t2);
+	free(t2);
+	//user_id
+	ZERO(tn);
+	getJSONVal(&ch2, "user_id", tn, NULL);
+	sscanf(tn, "%lu", &data->recv_msg.data.sender.user_id);
+
+	FreeJSON(json);
 
 	closesocket(server);
 	return set_cqhttp_err(None, func, 0, NULL);
@@ -194,8 +258,6 @@ delete_msg_data New_delete_msg(int message_id)
 
 cqhttp_err delete_msg(delete_msg_data* data)
 {
-	char func[70] = "delete_msg";
-
 	if ((server = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 		return set_cqhttp_err(SocketInitError, func, 0, NULL);
 	if (connect(server, (SOCKADDR*)&server_addr, sizeof(server_addr)) < 0)
@@ -238,8 +300,6 @@ get_group_member_info_data New_get_group_member_info(unsigned long group_id, uns
 
 cqhttp_err get_group_member_info(get_group_member_info_data* data)
 {
-	char func[70] = "get_group_member_info";
-
 	if ((server = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 		return set_cqhttp_err(SocketInitError, func, 0, NULL);
 	if (connect(server, (SOCKADDR*)&server_addr, sizeof(server_addr)) < 0)
@@ -291,8 +351,6 @@ cqhttp_err get_group_member_info(get_group_member_info_data* data)
 /*初始化*/
 cqhttp_err init_gocqhttpAPI(const char* ip, const int port)
 {
-	const char func[70] = "init_gocqhttpAPI";
-
 	memset((void*)&server_addr, 0, sizeof(SOCKADDR_IN));
 	
 	server_addr.sin_family = AF_INET;
