@@ -33,7 +33,7 @@ go-cqhttp开发文档来查询（其实直接看代码的注释也可以用，�
 
 ### 以及JSON解析库
 * AnaJSON.h
-* Anajson.c
+* AnaJSON.c
 
 ### 使用方法
 使用方法很简单，把main.c文件中注释为
