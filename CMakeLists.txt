@@ -6,7 +6,7 @@ set(SOURCE
     "src/gocqhttp_err.c"
     "src/gocqhttp_Event.c"
     "src/URLcode.c"
-    “src/AnaJAON.c”
+    "src/AnaJSON.c"
 )
 
 add_library(gocqhttplib STATIC ${SOURCE})
