@@ -102,8 +102,6 @@ case group_message:		//群消息
 /*自己编写的文件*/
 cqhttp_err group_message_switch(group_message_event_data msg)
 {
-	char func[70] = "group_message_switch";
-
 	printf("来自群 %lu 中 %lu 的消息：%s\n", msg.group_id, msg.user_id, msg.message);
 	if (!strcmp(msg.message, "自我介绍"))
 		return introduction(msg);//自己实现的函数
@@ -136,5 +134,4 @@ free(str);//记得一定要free！！！因为转码函数转换后的字符串�
 提示你将某些函数改成加了后缀"_s"的某些函数的Warning，
 不理会即可
 
-如果遇到了某些go-cqhtpp的某些功能需要使用但本框架还未开发，请勿催促，
-作者现在还是高中生，学校是半月休，所以开发进度会有些慢，但还请耐心等待
+因为作者现在还是高中生，能力有限，所以框架还比较简陋，学校是月休，不能用电子产品，所以开发会比较慢（其实我也不觉得会有多少人用C写机器人）
