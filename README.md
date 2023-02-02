@@ -1,61 +1,94 @@
-# go-cqhttp-C
-* 这是一个基于[go-cqhttp](https://github.com/Mrs4s/go-cqhttp)的C语言QQ机器人开源框架，大致可分为 API操作、
-Event消息接收解析以及错误反馈三个部分，但只能在windows系统上使用。
-> 制作这个的初衷是为了方便开发者能更加快捷的使用C语言制作出QQ机器人，
-即使是对socket编程没有任何基础的编程小白也能在不具备socket相关知识
-的情况下快速开发出机器人。
+# **go-cqhttp-C简介**
+* 这是一个基于[go-cqhttp](https://github.com/Mrs4s/go-cqhttp)的C语言QQ机器人开源框架，大致可分为 API操作和
+事件接收解析响应调用两个部分，但只能在windows系统上使用。
+> 制作这个的初衷是为了方便开发者能更加快捷的使用C语言制作出QQ机器人（虽说我不觉得除了我还有谁会用C语言写机器人，这个项目算是自己想用C语言写机器人的所做的产物）
 
 ### 在使用此框架后，可以让开发QQ机器人的门槛下降一大截台阶，对于萌新十分友好，甚至可以拿来练练手，让自己有更多的开发经验。
+>### 框架较之前有了很大的改进这一年的时间里，前前后后重构了三次，日志模块重写了两次，JSON解析模块还没全部完成就直接重写，事件的响应机制也重写了，删去了很多冗杂的东西，现在框架整体易用了很多
 
 ***
 
 因为本框架是基于go-cqhttp编写，所以在使用本框架时，需要同时使用
 go-cqhttp开发文档来查询（其实直接看代码的注释也可以用，结构的成员都有详细的注释）。
-本框架主要主要分为7个文件，分别为
-### 实现go-cqhttp的API操作
-* gocqhttp_API.h
-* gocqhttp_API.c
+> **特别注意：**<br>
+> 部署go-cqhttp时，配置文件85行以后直接按这个复制，如果熟悉本框架的话当我没说
+> ```yml
+># 连接服务列表
+>servers:
+>  # 添加方式，同一连接方式可添加多个，具体配置说明请查看文档
+>  #- http: # http 通信
+>  #- ws:   # 正向 Websocket
+>  #- ws-reverse: # 反向 Websocket
+>  #- pprof: #性能分析服务器
+>  # HTTP 通信设置
+>  - http:
+>      # 服务端监听地址
+>      host: 127.0.0.1
+>      # 服务端监听端口
+>      port: 5700
+>     # 反向HTTP超时时间, 单位秒
+>      # 最小值为5，小于5将会忽略本项设置
+>      timeout: 5
+>      # 长轮询拓展
+>      long-polling:
+>        # 是否开启
+>        enabled: false
+>        # 消息队列大小，0 表示不限制队列大小，谨慎使用
+>        max-queue-size: 2000
+>      middlewares:
+>        <<: *default # 引用默认中间件
+>      # 反向HTTP POST地址列表
+>      post:
+>      #- url: '' # 地址
+>      #  secret: ''           # 密钥
+>      - url: http://127.0.0.1:5701/ # 地址
+>      #  secret: ''          # 密钥
+> ```
 
-### 实现go-cqhttp的事件接收
-* gocqhttp_Event.h
-* gocqhttp_Event.c
+本框架主要主要分为三大模块
+### 实现go-cqhttp的API操作及事件接收响应调用
+* gocqhttp_API.*
+* gocqhttp_Event.*
 
-### 用于反馈go-cqhttp-C在使用时的错误
-* gocqhttp_err.h
-* gocqhttp_err.c
-
-### 已完成的主函数框架
+### 机器人主体（机器人各功能实现）
 * main.c
+* robot.*
+* function.*
 
-### 此外还有两个拓展文件（来自于网络整理），用于转码
-* URLcode.h
-* URLcode.c
+### 工具模块
+* AnaJSON.*
+* URLcode.*
+* Log.*
+* Tool.*
 
-### 以及JSON解析库
-* AnaJSON.h
-* AnaJSON.c
+<br>
 
-### 使用方法
-使用方法很简单，把main.c文件中注释为
-`
-//code
-`
-的地方改为自己的代码即可。
-> 也可以用单独创建一个文件编写，再把code注释改为一个集成好的函数即可（在后面会有这样的演示）
+# 使用方法
+* 把项目克隆后直接在克隆的目录创建项目把源码文件全部添加进去（CMakeKists.txt文件我不会写，先这样用吧）
+* 项目创建好后，别的文件都不要动，直接在function.*两个文件里声明并实现就行，功能实现完后按照功能类型再注册就完成了。
 
-可以注意到，在`//code`的上一行，会有
-```c
-msg.XXX_message = ...;
-```
-的代码（没有的话说明还没开发好），其实这一行代码是对接收到的消息进行解析的，因为cqhttp会发送很多种不同的事件消息（详情请参照cqhttp帮助文档），main.c里的代码，会对初始消息进行解析已确定他是哪种事件（详情看注释），接着就是通过上面这一行代码进行进一步解析，来获取我没最终需要的信息（如群消息事件我们就需要获取`char*`类型的群消息）<br>
-`msg.XXX_message = ...;`本身是一个结构（详情见源代码注释），但其中包含了事件消息的所有信息，只需要访问它的成员即可（不理解的话先往后看）。
+## **机器人各功能的事件响应**
 
-API的使用流程也很简单，分为以下两步：
-1. 初始化发包（union）
+go-cqhttp目前一共有五种类型响应，此框架目前仅实现了其中用得到的三种，分别为：消息事件、请求事件和上报事件（详情参考[官方文档](https://github.com/ishkong/go-cqhttp-docs/tree/main/docs/event)）
+> 在`function.c`文件中的`initialize()`函数实现中，调用三个注册函数即可完成对功能的注册已经自动调用（功能函数需按照规定声明），这三个函数分别为：
+>```c
+>registerMessageFunction()//注册消息事件功能
+>registerRequestFunction()//注册请求事件功能
+>registerNoticeFunction()//注册上报类型功能
+>```
+>* 当某个功能注册失败时会返回-1<br>
+>* 每个功能都要有一个名字，相当于她们的id，这个id为字符串类型`char*`，为三个函数的最后一个参数<br>
+>* 三个函数的第一个函数，都是要注册的功能函数，他们的声明都有着各自的规则：
+>   1. 消息事件 `void (*function)(MessageEventInfo)`返回`void`类型，有一个`MessageEventInfo`类型参数，这个类型包含了最基本的消息事件数据，相比cqhttp精简了很多，可以直接翻cqhttp的文档，或者直接看我从文档抄下来的注释
+> 	2. 请求事件 `void (*function)(RequestEventInfo)`同上，只不过是换了个参数类型
+> 	3. 上报事件`void (*function)(NoticeEventInfo)`同上同上
+
+## **API的使用还是和以前一样，分为以下两步**：
+1. 初始化发包（union类型）
 2. 调用API
 > API与go-cqhttp同名，包括发包
 
-大致如下：
+**大致如下：**
 ```c
 API名_data data = New_API名;      //初始化发包（union）
 API名(&data);                     //代入指针，调用API
@@ -66,60 +99,7 @@ data.recv_data
 `
 可以查看</br>
 
-并会返回一个`cqhttp_err`的结构，这个结构包含了调用API时所产生的错误，可以用`cqhttp_err_out()`直接进行输出，结构大致如下：
-```c
-typedef struct
-{
-	cqhttp_err_list error;	//错误类型
-	char function[70];		//错误函数
-	int flag;				//是否拥有附加说明
-	char instructions[500];	//附加说明
-} cqhttp_err;		//错误封装
-```
-用户也可以通过`set_cqhttp_err()`快速初始化这个结构</br>
-> 该结构的错误类型已经预设了几种，用户可以根据需要自行添加
 
-使用起来大概如下：
-```c
-//输出错误
-err = group_message_send(data);
-cqhttp_err_out(err);
-//自行构建错误
-cqhttp_err err = set_cqhttp_err(NULLError, func, 1, "空指针异常！");
-cqhttp_err_out(err);
-```
-> 你可能会好奇第二个参数func是在哪里声明，他其实是个宏，展开为_FUNC_，为当前函数名
-
-整体效果大概如下
-```c
-/*main.c 部分节选*/
-case group_message:		//群消息
-	cqhttp_err_out(set_cqhttp_err(None, func, 1, "recv group_message"));
-	msg.group_message = group_message_event_analysis(event_msg);    
-	err = group_message_switch(msg.group_message);  //这两行是自己添加的代码
-	cqhttp_err_out(err);                            //
-	break;
-/*自己编写的文件*/
-cqhttp_err group_message_switch(group_message_event_data msg)
-{
-	printf("来自群 %lu 中 %lu 的消息：%s\n", msg.group_id, msg.user_id, msg.message);
-	if (!strcmp(msg.message, "自我介绍"))
-		return introduction(msg);//自己实现的函数
-	return set_cqhttp_err(None, func, 0, NULL);
-}
-
-/*自我介绍*/
-cqhttp_err introduction(group_message_event_data msg)
-{
-	char func[70] = "introduction";
-    
-	send_group_msg_data data = New_send_group_msg(msg.group_id, "大家好！", 0);
-	send_group_msg(&data);
-	if (!strcmp(data.recv_msg.status, "ok"))
-		return set_cqhttp_err(None, func, 1, "发送消息成功");
-	return set_cqhttp_err(None, func, 1, "发送消息失败");
-}
-```
 不过值得注意的一点是，C语言默认使用gbk字符集，但cqhttp只会接收utf8字符集或URL编码，否则会乱码，所以在API中包含了自动转码（转码函数包含在`URLcode.h`中），但这并不意味着开发者不需要注意到这个问题因为当你编写其他网络平台接口的时候很可能会乱码<br>
 `URLcode.h`和`URLcode.c`的使用方法也很简单，大致如下：
 ```c
@@ -127,11 +107,43 @@ char* str = 转码函数(data/*原字符串*/);
 //使用转码后的data，也就是str
 free(str);//记得一定要free！！！因为转码函数转换后的字符串是重新从堆申请的
 ```
+### **funciton.\*里有个小demo，可以参考一下**
 
-> 如果说不能过编译，打开菜单中的“项目”选项->选择当前项目的“项目属性”->
-选择“C/C++”->找到“SDL检查”选项，将其改成“否”。
-这样设置后便不会出现框架无法过编译的情况，但可能仍会出现
-提示你将某些函数改成加了后缀"_s"的某些函数的Warning，
-不理会即可
+---
 
-因为作者现在还是高中生，能力有限，所以框架还比较简陋，学校是月休，不能用电子产品，所以开发会比较慢（其实我也不觉得会有多少人用C写机器人）
+## **日志模块**
+日志模块较之前有了很大不同（听了大佬的建议做很多修改），现在模块可直接使用格式化字符串（printf一样的用法），也不用再声明一个错误类型<br>
+>使用日志模块前要先调用`init_Log()`函数初始化（此框架已经调用过，不用再额外调用），日志会直接写入到`log`文件里
+
+现在，日志模块输出分为三个等级，分比为：info、warn和err
+```c
+logInfo()
+logWarn()
+logErr()
+```
+这三个函数只会输出最基本的一些信息，及时间、日期、等级和日志，如果需要输出一些更完整的信息，比如：代码行、函数名、文件等，则需调用其对应的三个宏：
+```c
+logInfoAll()
+logWarnAll()
+logErrAll()
+```
+这三个宏的用法和三个函数一样，只是输出更完整了一些<br>
+不过还有一个比较特殊的
+```c
+logPreset()
+logPresetAll()
+```
+这个函数和宏接受的是预设好的错误类型参数，预设可以更具需求更改
+
+<br>
+
+# 已知但还未修复的BUG
+**后天就开学了，修不了了**
+1. JSON解析模块解析JSON对象时可能会出错，直接导致API `get_msg()` 无法使用
+2. JSON解析模块解析CQ码时可能会出错
+3. `NoticeEventInfo`类型的`comment`成员还不可用，因为我还没来得及写
+4. API发送数据后如果没有收到响应可能会进入死循环，跳出循环机制还没加
+
+<br>
+
+# **最后感谢各位帮助了我的大佬**

@@ -1,14 +1,17 @@
 project(gocqhttp)
 
-include_directories("src")
 set(SOURCE
-    "src/gocqhttp_API.c"
-    "src/gocqhttp_err.c"
-    "src/gocqhttp_Event.c"
-    "src/URLcode.c"
-    "src/AnaJSON.c"
+    "gocqhttp_API.c"
+    "gocqhttp_Event.c"
+    "URLcode.c"
+    "AnaJSON.c"
+    "Log.c"
+    "robot.c"
+    "Tool.c"
+    "win.c"
+    "function.c"
 )
 
 add_library(gocqhttplib STATIC ${SOURCE})
-add_executable(gocqhttp "src/main.c")
+add_executable(gocqhttp "main.c")
 target_link_libraries(gocqhttp PRIVATE gocqhttplib)

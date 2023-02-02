@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="go-cqhttp">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Main">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="tool">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="tool\log">
+      <UniqueIdentifier>{fe808828-42c1-4e98-8e3f-3bdd50e3f5e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tool\AnaJSON">
+      <UniqueIdentifier>{1a1b5cd6-9cf9-458c-818d-96592e29caee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tool\code">
+      <UniqueIdentifier>{e2893dbe-396c-4fcb-a56f-87136e535069}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Main\function">
+      <UniqueIdentifier>{46d5bc09-fb81-4592-89e7-e35b8b1a955c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="gocqhttp_API.c">
+      <Filter>go-cqhttp</Filter>
+    </ClCompile>
+    <ClCompile Include="gocqhttp_Event.c">
+      <Filter>go-cqhttp</Filter>
+    </ClCompile>
+    <ClCompile Include="main.c">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="robot.c">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="Log.c">
+      <Filter>tool\log</Filter>
+    </ClCompile>
+    <ClCompile Include="AnaJSON.c">
+      <Filter>tool\AnaJSON</Filter>
+    </ClCompile>
+    <ClCompile Include="URLcode.c">
+      <Filter>tool\code</Filter>
+    </ClCompile>
+    <ClCompile Include="Tool.c">
+      <Filter>tool</Filter>
+    </ClCompile>
+    <ClCompile Include="function.c">
+      <Filter>Main\function</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="gocqhttp_API.h">
+      <Filter>go-cqhttp</Filter>
+    </ClInclude>
+    <ClInclude Include="gocqhttp_Event.h">
+      <Filter>go-cqhttp</Filter>
+    </ClInclude>
+    <ClInclude Include="robot.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="Log.h">
+      <Filter>tool\log</Filter>
+    </ClInclude>
+    <ClInclude Include="AnaJSON.h">
+      <Filter>tool\AnaJSON</Filter>
+    </ClInclude>
+    <ClInclude Include="URLcode.h">
+      <Filter>tool\code</Filter>
+    </ClInclude>
+    <ClInclude Include="Tool.h">
+      <Filter>tool</Filter>
+    </ClInclude>
+    <ClInclude Include="function.h">
+      <Filter>Main\function</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

@@ -4,3 +4,7 @@ build/
 .vscode/
 # Visual studio
 out/
+x64/
+log/
+temp/
+.vs/
